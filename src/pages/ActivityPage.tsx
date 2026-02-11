@@ -58,7 +58,11 @@ const ActivityPage = () => {
 
     // Comments
     COMMENTS.forEach(c => {
-      records.push({ id: `cm-${c.id}`, userId: c.userId, documentId: c.documentId, action: 'comment', dateTime: c.createdAt });
+      const project = PROJECTS.find(p => p.id === c.projectId);
+      // Find any document in this project for activity linking
+      const projectFolders = FOLDERS.filter(f => f.projectId === c.projectId);
+      const projectDoc = DOCUMENTS.find(d => projectFolders.some(f => f.id === d.folderId));
+      records.push({ id: `cm-${c.id}`, userId: c.userId, documentId: projectDoc?.id || '', action: 'comment', dateTime: c.createdAt });
     });
 
     return records.sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
