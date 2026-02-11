@@ -154,9 +154,6 @@ const UsersPage = () => {
                     <span className="text-sm text-muted-foreground">
                       {u.role === 'client' ? CLIENTS.find(c => c.name === u.company)?.name || u.company : u.company}
                     </span>
-                    {u.role === 'client' && u.company && (
-                      <span className="block text-xs text-muted-foreground/60">Cliente</span>
-                    )}
                   </td>
                   <td className="px-4 py-3 hidden lg:table-cell">
                     {clientNames ? (
