@@ -111,8 +111,8 @@ const ExplorerPage = () => {
           </Button>
         )}
         {canUpload && currentLevel.type === 'client' && (
-          <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-secondary" onClick={() => toast.success('Proyecto creado (simulado)')}>
-            <FolderPlus className="w-4 h-4 mr-1.5" />
+          <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => toast.success('Proyecto creado (simulado)')}>
+            <Plus className="w-4 h-4 mr-1.5" />
             Nuevo Proyecto
           </Button>
         )}
