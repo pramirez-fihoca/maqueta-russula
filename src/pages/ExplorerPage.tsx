@@ -99,7 +99,7 @@ const ExplorerPage = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-heading text-2xl font-bold text-foreground">Explorador de Documentos</h1>
-          <p className="text-sm text-muted-foreground mt-1">Navega por la estructura de carpetas y documentos</p>
+          <p className="text-sm text-muted-foreground mt-1">Navega por la estructura de Clientes y Proyectos</p>
         </div>
         {canUpload && currentLevel.type === 'root' && (
           <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => setShowNewClient(true)}>
