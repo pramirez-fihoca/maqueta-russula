@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import russulaLogo from '@/assets/russula-logo.png';
+import russulaLogoLight from '@/assets/russula-logo-light.png';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate, useLocation, Link } from 'react-router-dom';
 import { 
@@ -41,7 +42,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
 
-        <img src={russulaLogo} alt="Russula" className="h-7" />
+        <img src={theme === 'dark' ? russulaLogo : russulaLogoLight} alt="Russula" className="h-7" />
 
         <div className="flex-1" />
 
