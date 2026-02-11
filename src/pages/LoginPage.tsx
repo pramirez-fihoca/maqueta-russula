@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
 import russulaLogo from '@/assets/russula-logo.png';
+import russulaLogoLight from '@/assets/russula-logo-light.png';
+import { useTheme } from 'next-themes';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +14,7 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +37,7 @@ const LoginPage = () => {
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-2">
-              <img src={russulaLogo} alt="Russula" className="h-9" />
+              <img src={theme === 'dark' ? russulaLogo : russulaLogoLight} alt="Russula" className="h-9" />
             </div>
             <p className="text-muted-foreground text-sm mt-2">Portal de Clientes</p>
           </div>
