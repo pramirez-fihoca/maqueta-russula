@@ -159,22 +159,30 @@ const UsersPage = () => {
             <div className="space-y-1.5">
               <label className="text-sm font-medium">Permisos de Acceso</label>
               <div className="bg-secondary rounded-lg p-3 max-h-48 overflow-auto space-y-2">
-                {CLIENTS.map(client => (
-                  <div key={client.id}>
-                    <div className="flex items-center gap-2">
-                      <Checkbox id={client.id} checked={selectedPermissions.includes(client.id)} onCheckedChange={() => togglePermission(client.id)} />
-                      <label htmlFor={client.id} className="text-sm font-medium text-foreground cursor-pointer">{client.name}</label>
+                {(() => {
+                  const visibleClients = formData.role === 'client' && formData.company
+                    ? CLIENTS.filter(c => c.name === formData.company)
+                    : CLIENTS;
+                  return visibleClients.map(client => (
+                    <div key={client.id}>
+                      <div className="flex items-center gap-2">
+                        <Checkbox id={client.id} checked={selectedPermissions.includes(client.id)} onCheckedChange={() => togglePermission(client.id)} />
+                        <label htmlFor={client.id} className="text-sm font-medium text-foreground cursor-pointer">{client.name}</label>
+                      </div>
+                      <div className="ml-6 mt-1 space-y-1">
+                        {PROJECTS.filter(p => p.clientId === client.id).map(project => (
+                          <div key={project.id} className="flex items-center gap-2">
+                            <Checkbox id={project.id} checked={selectedPermissions.includes(project.id)} onCheckedChange={() => togglePermission(project.id)} />
+                            <label htmlFor={project.id} className="text-sm text-muted-foreground cursor-pointer">{project.name}</label>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="ml-6 mt-1 space-y-1">
-                      {PROJECTS.filter(p => p.clientId === client.id).map(project => (
-                        <div key={project.id} className="flex items-center gap-2">
-                          <Checkbox id={project.id} checked={selectedPermissions.includes(project.id)} onCheckedChange={() => togglePermission(project.id)} />
-                          <label htmlFor={project.id} className="text-sm text-muted-foreground cursor-pointer">{project.name}</label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  ));
+                })()}
+                {formData.role === 'client' && !formData.company && (
+                  <p className="text-xs text-muted-foreground italic">Introduce el nombre de la empresa para ver sus proyectos</p>
+                )}
               </div>
             </div>
 
