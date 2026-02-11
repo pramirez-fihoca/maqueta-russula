@@ -173,20 +173,36 @@ const ExplorerPage = () => {
 
         {/* Folders */}
         {folders.map(folder => (
-          <button
+          <div
             key={folder.id}
-            onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary transition-colors group"
           >
             <div className="w-9 h-9 rounded bg-primary/15 flex items-center justify-center">
               <Folder className="w-4 h-4 text-primary" />
             </div>
-            <div className="flex-1 text-left">
+            <button
+              className="flex-1 text-left"
+              onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
+            >
               <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{folder.name}</p>
               <p className="text-xs text-muted-foreground">{folder.date}</p>
-            </div>
+            </button>
+            {canDelete && folder.type === 'client' && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLocalClients(localClients.filter(c => c.id !== folder.id));
+                  toast.success(`Cliente "${folder.name}" eliminado`);
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
             <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
+          </div>
         ))}
 
         {/* Documents */}
