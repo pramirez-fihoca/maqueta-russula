@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { CLIENTS, PROJECTS, FOLDERS, DOCUMENTS, formatFileSize, Client } from '@/data/mockData';
 import { 
   Folder, FileText, ChevronRight, Upload, FolderPlus, Search, 
-  Download, Trash2, ArrowLeft, File, MessageSquare, Plus, Building2
+  Download, Trash2, ArrowLeft, File, MessageSquare, Plus, Building2, Briefcase
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -178,7 +178,7 @@ const ExplorerPage = () => {
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary transition-colors group"
           >
             <div className="w-9 h-9 rounded bg-primary/15 flex items-center justify-center">
-              {folder.type === 'client' ? <Building2 className="w-4 h-4 text-primary" /> : <Folder className="w-4 h-4 text-primary" />}
+              {folder.type === 'client' ? <Building2 className="w-4 h-4 text-primary" /> : folder.type === 'project' ? <Briefcase className="w-4 h-4 text-primary" /> : <Folder className="w-4 h-4 text-primary" />}
             </div>
             <button
               className="flex-1 text-left"
