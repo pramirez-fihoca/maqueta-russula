@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { CLIENTS, PROJECTS, FOLDERS, DOCUMENTS, formatFileSize } from '@/data/mockData';
+import { CLIENTS, PROJECTS, FOLDERS, DOCUMENTS, formatFileSize, Client } from '@/data/mockData';
 import { 
   Folder, FileText, ChevronRight, Upload, FolderPlus, Search, 
-  Download, Trash2, ArrowLeft, File, MessageSquare
+  Download, Trash2, ArrowLeft, File, MessageSquare, Plus, Building2
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 type BreadcrumbItem = { id: string; name: string; type: 'root' | 'client' | 'project' | 'folder' };
 
@@ -19,6 +24,10 @@ const ExplorerPage = () => {
     { id: 'root', name: 'Clientes', type: 'root' }
   ]);
   const [search, setSearch] = useState('');
+  const [localClients, setLocalClients] = useState<Client[]>(CLIENTS);
+  const [showNewClient, setShowNewClient] = useState(false);
+  const [newClientName, setNewClientName] = useState('');
+  const [newClientDesc, setNewClientDesc] = useState('');
 
   const currentLevel = breadcrumb[breadcrumb.length - 1];
   const isAdmin = user?.role === 'admin';
@@ -39,8 +48,23 @@ const ExplorerPage = () => {
   let folders: { id: string; name: string; type: 'client' | 'project' | 'folder'; date: string }[] = [];
   let documents: typeof DOCUMENTS = [];
 
+  const handleCreateClient = () => {
+    if (!newClientName.trim()) return;
+    const newClient: Client = {
+      id: `c${Date.now()}`,
+      name: newClientName.trim(),
+      description: newClientDesc.trim(),
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    setLocalClients([...localClients, newClient]);
+    setNewClientName('');
+    setNewClientDesc('');
+    setShowNewClient(false);
+    toast.success(`Cliente "${newClient.name}" creado correctamente`);
+  };
+
   if (currentLevel.type === 'root') {
-    folders = CLIENTS.map(c => ({ id: c.id, name: c.name, type: 'client' as const, date: c.createdAt }));
+    folders = localClients.map(c => ({ id: c.id, name: c.name, type: 'client' as const, date: c.createdAt }));
   } else if (currentLevel.type === 'client') {
     folders = PROJECTS.filter(p => p.clientId === currentLevel.id).map(p => ({ id: p.id, name: p.name, type: 'project' as const, date: p.createdAt }));
   } else if (currentLevel.type === 'project') {
@@ -77,6 +101,12 @@ const ExplorerPage = () => {
           <h1 className="font-heading text-2xl font-bold text-foreground">Explorador de Documentos</h1>
           <p className="text-sm text-muted-foreground mt-1">Navega por la estructura de carpetas y documentos</p>
         </div>
+        {canUpload && currentLevel.type === 'root' && (
+          <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => setShowNewClient(true)}>
+            <Plus className="w-4 h-4 mr-1.5" />
+            Nuevo Cliente
+          </Button>
+        )}
         {canUpload && currentLevel.type !== 'root' && currentLevel.type !== 'client' && (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-secondary" onClick={() => toast.success('Carpeta creada (simulado)')}>
@@ -187,6 +217,33 @@ const ExplorerPage = () => {
           </div>
         )}
       </div>
+
+      {/* Dialog Nuevo Cliente */}
+      <Dialog open={showNewClient} onOpenChange={setShowNewClient}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="font-heading flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-primary" />
+              Nuevo Cliente
+            </DialogTitle>
+            <DialogDescription>Crea un nuevo cliente para organizar sus proyectos y documentación.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="client-name">Nombre del Cliente</Label>
+              <Input id="client-name" placeholder="Ej: Steel Corp" value={newClientName} onChange={e => setNewClientName(e.target.value)} className="bg-background border-border" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="client-desc">Descripción</Label>
+              <Textarea id="client-desc" placeholder="Breve descripción del cliente..." value={newClientDesc} onChange={e => setNewClientDesc(e.target.value)} className="bg-background border-border resize-none" rows={3} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNewClient(false)}>Cancelar</Button>
+            <Button className="russula-gradient text-primary-foreground hover:opacity-90" onClick={handleCreateClient} disabled={!newClientName.trim()}>Crear Cliente</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
