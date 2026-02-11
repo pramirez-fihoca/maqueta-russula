@@ -7,6 +7,7 @@ export interface User {
   role: UserRole;
   avatar?: string;
   company?: string;
+  assignedClients?: string[];
 }
 
 export interface Client {
@@ -73,11 +74,11 @@ export interface AccessPermission {
 
 export const USERS: User[] = [
   { id: 'u1', name: 'Carlos García', email: 'carlos@russula.com', role: 'admin', company: 'Russula' },
-  { id: 'u2', name: 'María López', email: 'maria@russula.com', role: 'editor', company: 'Russula' },
+  { id: 'u2', name: 'María López', email: 'maria@russula.com', role: 'editor', company: 'Russula', assignedClients: ['c1', 'c2', 'c3', 'c5', 'c8'] },
   { id: 'u3', name: 'John Smith', email: 'john@nucor.com', role: 'client', company: 'Nucor Kingman' },
   { id: 'u4', name: 'Anna Mueller', email: 'anna@celsa.com', role: 'client', company: 'Celsa France' },
   { id: 'u5', name: 'Roberto Silva', email: 'roberto@gerdau.com', role: 'client', company: 'Gerdau Riograndense' },
-  { id: 'u6', name: 'Laura Fernández', email: 'laura@russula.com', role: 'editor', company: 'Russula' },
+  { id: 'u6', name: 'Laura Fernández', email: 'laura@russula.com', role: 'editor', company: 'Russula', assignedClients: ['c4', 'c6', 'c7', 'c9', 'c10', 'c11'] },
   { id: 'u7', name: 'David Chen', email: 'david@bigriver.com', role: 'client', company: 'Big River Steel' },
   { id: 'u8', name: 'Sophie Bernard', email: 'sophie@novelis.com', role: 'client', company: 'Novelis Bay Minette' },
 ];
