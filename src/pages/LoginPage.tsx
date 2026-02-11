@@ -99,7 +99,7 @@ const LoginPage = () => {
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>maria@russula.com</span>
-                <span className="text-warning font-medium">Editor</span>
+                <span className="text-warning font-medium">Responsable</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>john@steelcorp.com</span>

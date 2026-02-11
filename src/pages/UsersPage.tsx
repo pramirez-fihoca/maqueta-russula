@@ -53,7 +53,7 @@ const UsersPage = () => {
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'admin': return <span className="inline-flex items-center gap-1 text-xs bg-primary/15 text-primary px-2 py-0.5 rounded-full"><Shield className="w-3 h-3" />Admin</span>;
-      case 'editor': return <span className="inline-flex items-center gap-1 text-xs bg-warning/15 text-warning px-2 py-0.5 rounded-full"><Edit3 className="w-3 h-3" />Editor</span>;
+      case 'editor': return <span className="inline-flex items-center gap-1 text-xs bg-warning/15 text-warning px-2 py-0.5 rounded-full"><Edit3 className="w-3 h-3" />Responsable</span>;
       default: return <span className="inline-flex items-center gap-1 text-xs bg-success/15 text-success px-2 py-0.5 rounded-full"><Eye className="w-3 h-3" />Cliente</span>;
     }
   };
@@ -139,7 +139,7 @@ const UsersPage = () => {
                   <SelectTrigger className="bg-secondary border-border"><SelectValue /></SelectTrigger>
                   <SelectContent className="bg-card border-border">
                     <SelectItem value="admin">Administrador</SelectItem>
-                    <SelectItem value="editor">Editor</SelectItem>
+                    <SelectItem value="editor">Responsable</SelectItem>
                     <SelectItem value="client">Cliente</SelectItem>
                   </SelectContent>
                 </Select>
