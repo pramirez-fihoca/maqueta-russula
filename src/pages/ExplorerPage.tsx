@@ -147,12 +147,21 @@ const ExplorerPage = () => {
     documents = documents.filter(d => d.name.toLowerCase().includes(q));
   }
 
+  const getFileTypeLabel = (name: string) => {
+    if (name.endsWith('.pdf')) return 'Documento PDF';
+    if (name.endsWith('.dwg')) return 'Archivo DWG';
+    if (name.endsWith('.xlsx') || name.endsWith('.xls')) return 'Hoja de cálculo Excel';
+    if (name.endsWith('.zip')) return 'Carpeta comprimida (zip)';
+    if (name.endsWith('.doc') || name.endsWith('.docx')) return 'Documento Word';
+    return 'Archivo';
+  };
+
   const getFileTypeIcon = (name: string) => {
-    if (name.endsWith('.pdf')) return <div className="w-9 h-9 rounded bg-primary/20 flex items-center justify-center"><span className="text-primary text-xs font-bold">PDF</span></div>;
-    if (name.endsWith('.dwg')) return <div className="w-9 h-9 rounded bg-file-dwg/20 flex items-center justify-center"><span className="text-file-dwg text-xs font-bold">DWG</span></div>;
-    if (name.endsWith('.xlsx') || name.endsWith('.xls')) return <div className="w-9 h-9 rounded bg-file-xls/20 flex items-center justify-center"><span className="text-file-xls text-xs font-bold">XLS</span></div>;
-    if (name.endsWith('.zip')) return <div className="w-9 h-9 rounded bg-file-zip/20 flex items-center justify-center"><span className="text-file-zip text-xs font-bold">ZIP</span></div>;
-    return <div className="w-9 h-9 rounded bg-muted flex items-center justify-center"><File className="w-4 h-4 text-muted-foreground" /></div>;
+    if (name.endsWith('.pdf')) return <div className="w-5 h-5 rounded flex items-center justify-center"><span className="text-primary text-[10px] font-bold">PDF</span></div>;
+    if (name.endsWith('.dwg')) return <div className="w-5 h-5 rounded flex items-center justify-center"><span className="text-file-dwg text-[10px] font-bold">DWG</span></div>;
+    if (name.endsWith('.xlsx') || name.endsWith('.xls')) return <div className="w-5 h-5 rounded flex items-center justify-center"><span className="text-file-xls text-[10px] font-bold">XLS</span></div>;
+    if (name.endsWith('.zip')) return <div className="w-5 h-5 rounded flex items-center justify-center"><span className="text-file-zip text-[10px] font-bold">ZIP</span></div>;
+    return <File className="w-4 h-4 text-muted-foreground" />;
   };
 
   return (
@@ -311,59 +320,50 @@ const ExplorerPage = () => {
           </div>
         )}
 
-        {/* List view for folders inside projects */}
-        {(currentLevel.type === 'project' || currentLevel.type === 'folder') && folders.length > 0 && (
-          <div className="space-y-1 mb-2">
-            {folders.map(folder => (
-              <div
-                key={folder.id}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary transition-colors group"
-              >
-                <div className="w-9 h-9 rounded bg-primary/15 flex items-center justify-center">
-                  <Folder className="w-4 h-4 text-primary" />
-                </div>
-                <button
-                  className="flex-1 text-left"
-                  onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
-                >
-                  <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{folder.name}</p>
-                  <p className="text-xs text-muted-foreground">{folder.date}</p>
-                </button>
-                <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            ))}
-          </div>
-        )}
+        {/* Windows Explorer-style table for folders and documents inside projects */}
+        {(currentLevel.type === 'project' || currentLevel.type === 'folder') && (folders.length > 0 || documents.length > 0) && (
+          <div className="border border-border rounded-lg overflow-hidden bg-card">
+            {/* Table header */}
+            <div className="grid grid-cols-[1fr_180px_200px_100px] gap-0 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <div className="px-4 py-2.5">Nombre</div>
+              <div className="px-4 py-2.5">Fecha de modificación</div>
+              <div className="px-4 py-2.5">Tipo</div>
+              <div className="px-4 py-2.5 text-right">Tamaño</div>
+            </div>
 
-        {/* Documents */}
-        {documents.length > 0 && (
-          <div className="space-y-1">
+            {/* Folder rows */}
+            {folders.map(folder => (
+              <button
+                key={folder.id}
+                onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
+                className="w-full grid grid-cols-[1fr_180px_200px_100px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0"
+              >
+                <div className="px-4 py-2.5 flex items-center gap-2.5 text-left">
+                  <Folder className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span className="text-sm text-foreground group-hover:text-primary transition-colors truncate">{folder.name}</span>
+                </div>
+                <div className="px-4 py-2.5 text-sm text-muted-foreground">{folder.date}</div>
+                <div className="px-4 py-2.5 text-sm text-muted-foreground">Carpeta de archivos</div>
+                <div className="px-4 py-2.5 text-sm text-muted-foreground text-right">—</div>
+              </button>
+            ))}
+
+            {/* Document rows */}
             {documents.map(doc => (
               <div
                 key={doc.id}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary transition-colors group"
+                className="w-full grid grid-cols-[1fr_180px_200px_100px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0"
               >
-                {getFileTypeIcon(doc.name)}
-                <button 
-                  className="flex-1 text-left"
+                <button
                   onClick={() => navigate(`/dashboard/document/${doc.id}`)}
+                  className="px-4 py-2.5 flex items-center gap-2.5 text-left"
                 >
-                  <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{doc.name}</p>
-                  <p className="text-xs text-muted-foreground">{doc.uploadedAt} · {formatFileSize(doc.size)}</p>
+                  {getFileTypeIcon(doc.name)}
+                  <span className="text-sm text-foreground group-hover:text-primary transition-colors truncate">{doc.name}</span>
                 </button>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => navigate(`/dashboard/document/${doc.id}`)}>
-                    <MessageSquare className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => toast.success(`Descargando ${doc.name}...`)}>
-                    <Download className="w-4 h-4" />
-                  </Button>
-                  {canDelete && (
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => toast.success(`Documento eliminado (simulado)`)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
+                <div className="px-4 py-2.5 text-sm text-muted-foreground">{doc.uploadedAt}</div>
+                <div className="px-4 py-2.5 text-sm text-muted-foreground">{getFileTypeLabel(doc.name)}</div>
+                <div className="px-4 py-2.5 text-sm text-muted-foreground text-right">{formatFileSize(doc.size)}</div>
               </div>
             ))}
           </div>
