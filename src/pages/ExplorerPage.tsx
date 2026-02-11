@@ -235,7 +235,7 @@ const ExplorerPage = () => {
       {/* Content + Comments layout */}
       {(() => {
         const projectBreadcrumb = breadcrumb.find(b => b.type === 'project');
-        const showComments = currentLevel.type === 'folder' && !!projectBreadcrumb;
+        const showComments = (currentLevel.type === 'project' || currentLevel.type === 'folder') && !!projectBreadcrumb || currentLevel.type === 'project';
         return (
           <div className={cn("flex gap-6", showComments && "items-start")}>
           <div className="flex-1 min-w-0">
@@ -386,7 +386,7 @@ const ExplorerPage = () => {
 
           {/* Comments panel on the right for folder level */}
           {showComments && (() => {
-            const projectId = projectBreadcrumb!.id;
+            const projectId = currentLevel.type === 'project' ? currentLevel.id : projectBreadcrumb!.id;
             const projectComments = comments.filter(c => c.projectId === projectId);
             const rootComments = projectComments.filter(c => !c.parentId);
 
