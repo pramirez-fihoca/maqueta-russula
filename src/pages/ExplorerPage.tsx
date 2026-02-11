@@ -84,7 +84,7 @@ const ExplorerPage = () => {
   };
 
   // Determine content based on current level
-  let folders: { id: string; name: string; type: 'client' | 'project' | 'folder'; date: string; projectType?: ProjectType }[] = [];
+  let folders: { id: string; name: string; type: 'client' | 'project' | 'folder'; date: string; projectType?: ProjectType; description?: string; projectCount?: number }[] = [];
   let documents: typeof DOCUMENTS = [];
 
   const handleCreateClient = () => {
@@ -123,9 +123,12 @@ const ExplorerPage = () => {
   };
 
   if (currentLevel.type === 'root') {
-    folders = localClients.map(c => ({ id: c.id, name: c.name, type: 'client' as const, date: c.createdAt }));
+    folders = localClients.map(c => {
+      const projectCount = localProjects.filter(p => p.clientId === c.id).length;
+      return { id: c.id, name: c.name, type: 'client' as const, date: c.createdAt, description: c.description, projectCount };
+    });
   } else if (currentLevel.type === 'client') {
-    folders = localProjects.filter(p => p.clientId === currentLevel.id).map(p => ({ id: p.id, name: p.name, type: 'project' as const, date: p.createdAt, projectType: p.type }));
+    folders = localProjects.filter(p => p.clientId === currentLevel.id).map(p => ({ id: p.id, name: p.name, type: 'project' as const, date: p.createdAt, projectType: p.type, description: p.description }));
   } else if (currentLevel.type === 'project') {
     folders = FOLDERS.filter(f => f.projectId === currentLevel.id && !f.parentId).map(f => ({ id: f.id, name: f.name, type: 'folder' as const, date: f.createdAt }));
     documents = DOCUMENTS.filter(d => {
@@ -219,81 +222,152 @@ const ExplorerPage = () => {
       </div>
 
       {/* Content */}
-      <div className="space-y-1">
+      <div>
         {/* Back button */}
         {breadcrumb.length > 1 && (
           <button
             onClick={() => setBreadcrumb(breadcrumb.slice(0, -1))}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary transition-colors text-muted-foreground"
+            className="flex items-center gap-2 px-3 py-2 mb-4 rounded-lg hover:bg-secondary transition-colors text-muted-foreground text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm">Volver</span>
+            Volver
           </button>
         )}
 
-        {/* Folders */}
-        {folders.map(folder => (
-          <div
-            key={folder.id}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary transition-colors group"
-          >
-            <div className="w-9 h-9 rounded bg-primary/15 flex items-center justify-center">
-              {folder.type === 'client' ? <Building2 className="w-4 h-4 text-primary" /> : folder.type === 'project' ? getProjectTypeIcon(folder.projectType) : <Folder className="w-4 h-4 text-primary" />}
-            </div>
-            <button
-              className="flex-1 text-left"
-              onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
-            >
-              <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{folder.name}</p>
-              <p className="text-xs text-muted-foreground">{folder.date}</p>
-            </button>
-            {canDelete && folder.type === 'client' && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setLocalClients(localClients.filter(c => c.id !== folder.id));
-                  toast.success(`Cliente "${folder.name}" eliminado`);
-                }}
+        {/* Card grid for clients and projects */}
+        {(currentLevel.type === 'root' || currentLevel.type === 'client') && folders.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {folders.map(folder => (
+              <button
+                key={folder.id}
+                onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
+                className="group relative flex flex-col gap-3 p-5 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200 text-left"
               >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            )}
-            <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                {/* Icon + Type badge */}
+                <div className="flex items-start justify-between">
+                  <div className={cn(
+                    "w-10 h-10 rounded-lg flex items-center justify-center",
+                    folder.type === 'client' ? "bg-primary/10" :
+                    folder.projectType === 'water-solutions' ? "bg-blue-500/10" :
+                    folder.projectType === 'digitalization' ? "bg-emerald-500/10" :
+                    "bg-orange-500/10"
+                  )}>
+                    {folder.type === 'client' ? (
+                      <Building2 className="w-5 h-5 text-primary" />
+                    ) : folder.projectType === 'water-solutions' ? (
+                      <Droplets className="w-5 h-5 text-blue-500" />
+                    ) : folder.projectType === 'digitalization' ? (
+                      <Globe className="w-5 h-5 text-emerald-500" />
+                    ) : (
+                      <BarChart3 className="w-5 h-5 text-orange-500" />
+                    )}
+                  </div>
+                  {folder.type === 'project' && folder.projectType && (
+                    <span className={cn(
+                      "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full",
+                      folder.projectType === 'water-solutions' ? "bg-blue-500/10 text-blue-500" :
+                      folder.projectType === 'digitalization' ? "bg-emerald-500/10 text-emerald-500" :
+                      "bg-orange-500/10 text-orange-500"
+                    )}>
+                      {PROJECT_TYPES.find(pt => pt.value === folder.projectType)?.label}
+                    </span>
+                  )}
+                  {canDelete && folder.type === 'client' && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -mr-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocalClients(localClients.filter(c => c.id !== folder.id));
+                        toast.success(`Cliente "${folder.name}" eliminado`);
+                      }}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
+                </div>
+
+                {/* Name */}
+                <div>
+                  <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{folder.name}</p>
+                  {folder.description && (
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{folder.description}</p>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
+                  <span className="text-[11px] text-muted-foreground">{folder.date}</span>
+                  {folder.type === 'client' && folder.projectCount !== undefined && (
+                    <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <Briefcase className="w-3 h-3" />
+                      {folder.projectCount} {folder.projectCount === 1 ? 'proyecto' : 'proyectos'}
+                    </span>
+                  )}
+                </div>
+              </button>
+            ))}
           </div>
-        ))}
+        )}
+
+        {/* List view for folders inside projects */}
+        {(currentLevel.type === 'project' || currentLevel.type === 'folder') && folders.length > 0 && (
+          <div className="space-y-1 mb-2">
+            {folders.map(folder => (
+              <div
+                key={folder.id}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary transition-colors group"
+              >
+                <div className="w-9 h-9 rounded bg-primary/15 flex items-center justify-center">
+                  <Folder className="w-4 h-4 text-primary" />
+                </div>
+                <button
+                  className="flex-1 text-left"
+                  onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
+                >
+                  <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{folder.name}</p>
+                  <p className="text-xs text-muted-foreground">{folder.date}</p>
+                </button>
+                <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Documents */}
-        {documents.map(doc => (
-          <div
-            key={doc.id}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary transition-colors group"
-          >
-            {getFileTypeIcon(doc.name)}
-            <button 
-              className="flex-1 text-left"
-              onClick={() => navigate(`/dashboard/document/${doc.id}`)}
-            >
-              <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{doc.name}</p>
-              <p className="text-xs text-muted-foreground">{doc.uploadedAt} · {formatFileSize(doc.size)}</p>
-            </button>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => navigate(`/dashboard/document/${doc.id}`)}>
-                <MessageSquare className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => toast.success(`Descargando ${doc.name}...`)}>
-                <Download className="w-4 h-4" />
-              </Button>
-              {canDelete && (
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => toast.success(`Documento eliminado (simulado)`)}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
+        {documents.length > 0 && (
+          <div className="space-y-1">
+            {documents.map(doc => (
+              <div
+                key={doc.id}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary transition-colors group"
+              >
+                {getFileTypeIcon(doc.name)}
+                <button 
+                  className="flex-1 text-left"
+                  onClick={() => navigate(`/dashboard/document/${doc.id}`)}
+                >
+                  <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{doc.name}</p>
+                  <p className="text-xs text-muted-foreground">{doc.uploadedAt} · {formatFileSize(doc.size)}</p>
+                </button>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => navigate(`/dashboard/document/${doc.id}`)}>
+                    <MessageSquare className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => toast.success(`Descargando ${doc.name}...`)}>
+                    <Download className="w-4 h-4" />
+                  </Button>
+                  {canDelete && (
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => toast.success(`Documento eliminado (simulado)`)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
 
         {folders.length === 0 && documents.length === 0 && (
           <div className="text-center py-16 text-muted-foreground">
