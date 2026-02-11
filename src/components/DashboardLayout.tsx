@@ -4,8 +4,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Navigate, useLocation, Link } from 'react-router-dom';
 import { 
   FolderOpen, Activity, Users, Settings, LogOut, Menu, X,
-  LayoutDashboard
+  LayoutDashboard, Sun, Moon
 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -24,6 +25,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, logout, isAuthenticated } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { theme, setTheme } = useTheme();
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
@@ -44,6 +46,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="flex-1" />
 
         <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-muted-foreground hover:text-foreground">
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </Button>
           <div className="text-right hidden sm:block">
             <p className="text-sm font-medium text-foreground">{user!.name}</p>
             <p className="text-xs text-muted-foreground">{roleLabel}</p>
