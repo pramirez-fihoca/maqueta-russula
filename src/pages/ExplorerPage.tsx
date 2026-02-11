@@ -20,9 +20,19 @@ type BreadcrumbItem = { id: string; name: string; type: 'root' | 'client' | 'pro
 const ExplorerPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [breadcrumb, setBreadcrumb] = useState<BreadcrumbItem[]>([
-    { id: 'root', name: 'Clientes', type: 'root' }
-  ]);
+
+  // Find the client associated with this user (for client role)
+  const isClientRole = user?.role === 'client';
+  const userClient = isClientRole ? CLIENTS.find(c => c.name === user?.company) : null;
+
+  const [breadcrumb, setBreadcrumb] = useState<BreadcrumbItem[]>(() => {
+    if (isClientRole && userClient) {
+      return [
+        { id: userClient.id, name: 'Proyectos', type: 'client' }
+      ];
+    }
+    return [{ id: 'root', name: 'Clientes', type: 'root' }];
+  });
   const [search, setSearch] = useState('');
   const [localClients, setLocalClients] = useState<Client[]>(CLIENTS);
   const [showNewClient, setShowNewClient] = useState(false);
@@ -101,8 +111,12 @@ const ExplorerPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-heading text-2xl font-bold text-foreground">Explorador de Documentos</h1>
-          <p className="text-sm text-muted-foreground mt-1">Navega por la estructura de Clientes y Proyectos</p>
+          <h1 className="font-heading text-2xl font-bold text-foreground">
+            {isClientRole ? 'Explorador de Proyectos' : 'Explorador de Documentos'}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isClientRole ? 'Navega por tus proyectos y documentación' : 'Navega por la estructura de Clientes y Proyectos'}
+          </p>
         </div>
         {canUpload && currentLevel.type === 'root' && (
           <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => setShowNewClient(true)}>
