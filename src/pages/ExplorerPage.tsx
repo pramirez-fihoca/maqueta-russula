@@ -125,7 +125,11 @@ const ExplorerPage = () => {
   };
 
   if (currentLevel.type === 'root') {
-    folders = localClients.map(c => {
+    let visibleClients = localClients;
+    if (isEditor && user?.assignedClients) {
+      visibleClients = localClients.filter(c => user.assignedClients!.includes(c.id));
+    }
+    folders = visibleClients.map(c => {
       const projectCount = localProjects.filter(p => p.clientId === c.id).length;
       return { id: c.id, name: c.name, type: 'client' as const, date: c.createdAt, description: c.description, projectCount };
     });
@@ -178,7 +182,7 @@ const ExplorerPage = () => {
             {isClientRole ? 'Navega por tus proyectos y documentación' : 'Navega por la estructura de Clientes y Proyectos'}
           </p>
         </div>
-        {canUpload && currentLevel.type === 'root' && (
+        {isAdmin && currentLevel.type === 'root' && (
           <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => setShowNewClient(true)}>
             <Plus className="w-4 h-4 mr-1.5" />
             Nuevo Cliente
