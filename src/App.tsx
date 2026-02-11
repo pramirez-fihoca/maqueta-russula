@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "next-themes";
 import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
 import ExplorerPage from "./pages/ExplorerPage";
 import DocumentPage from "./pages/DocumentPage";
 import ActivityPage from "./pages/ActivityPage";
@@ -27,7 +28,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/dashboard" element={<DashboardLayout><ExplorerPage /></DashboardLayout>} />
+            <Route path="/dashboard" element={<DashboardLayout><DashboardPage /></DashboardLayout>} />
+            <Route path="/dashboard/explorer" element={<DashboardLayout><ExplorerPage /></DashboardLayout>} />
             <Route path="/dashboard/document/:id" element={<DashboardLayout><DocumentPage /></DashboardLayout>} />
             <Route path="/dashboard/activity" element={<DashboardLayout><ActivityPage /></DashboardLayout>} />
             <Route path="/dashboard/users" element={<DashboardLayout><UsersPage /></DashboardLayout>} />

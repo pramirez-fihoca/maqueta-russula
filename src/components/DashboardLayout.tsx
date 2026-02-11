@@ -16,7 +16,8 @@ interface DashboardLayoutProps {
 }
 
 const navItems = [
-  { label: 'Explorador', icon: FolderOpen, path: '/dashboard', roles: ['admin', 'editor', 'client'] },
+  { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard', roles: ['admin', 'editor'] },
+  { label: 'Explorador', icon: FolderOpen, path: '/dashboard/explorer', roles: ['admin', 'editor', 'client'] },
   { label: 'Actividad', icon: Activity, path: '/dashboard/activity', roles: ['admin'] },
   { label: 'Usuarios', icon: Users, path: '/dashboard/users', roles: ['admin', 'editor'] },
   { label: 'Configuración', icon: Settings, path: '/dashboard/settings', roles: ['admin', 'editor', 'client'] },
@@ -69,7 +70,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <nav className="flex-1 py-4 px-3 space-y-1">
             {filteredNav.map(item => {
               const isActive = location.pathname === item.path || 
-                (item.path === '/dashboard' && location.pathname.startsWith('/dashboard/explorer'));
+                (item.path === '/dashboard/explorer' && location.pathname.startsWith('/dashboard/document'));
               return (
                 <Link
                   key={item.path}
