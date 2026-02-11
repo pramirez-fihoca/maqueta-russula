@@ -17,11 +17,14 @@ export interface Client {
   createdAt: string;
 }
 
+export type ProjectType = 'rolling-mills' | 'water-solutions' | 'digitalization';
+
 export interface Project {
   id: string;
   clientId: string;
   name: string;
   description: string;
+  type: ProjectType;
   createdAt: string;
 }
 
@@ -86,12 +89,12 @@ export const CLIENTS: Client[] = [
 ];
 
 export const PROJECTS: Project[] = [
-  { id: 'p1', clientId: 'c1', name: 'Hot Rolling Mill Upgrade', description: 'Modernization of HRM line', createdAt: '2024-02-01' },
-  { id: 'p2', clientId: 'c1', name: 'Water Treatment Plant', description: 'New WTP installation', createdAt: '2024-04-15' },
-  { id: 'p3', clientId: 'c2', name: 'Cold Rolling Mill', description: 'New CRM facility', createdAt: '2024-05-01' },
-  { id: 'p4', clientId: 'c2', name: 'Furnace Automation', description: 'EAF automation system', createdAt: '2024-07-20' },
-  { id: 'p5', clientId: 'c3', name: 'Meltshop Upgrade', description: 'Complete meltshop modernization', createdAt: '2024-08-01' },
-  { id: 'p6', clientId: 'c3', name: 'Environmental Systems', description: 'Emissions control system', createdAt: '2024-09-15' },
+  { id: 'p1', clientId: 'c1', name: 'Hot Rolling Mill Upgrade', description: 'Modernization of HRM line', type: 'rolling-mills', createdAt: '2024-02-01' },
+  { id: 'p2', clientId: 'c1', name: 'Water Treatment Plant', description: 'New WTP installation', type: 'water-solutions', createdAt: '2024-04-15' },
+  { id: 'p3', clientId: 'c2', name: 'Cold Rolling Mill', description: 'New CRM facility', type: 'rolling-mills', createdAt: '2024-05-01' },
+  { id: 'p4', clientId: 'c2', name: 'Furnace Automation', description: 'EAF automation system', type: 'digitalization', createdAt: '2024-07-20' },
+  { id: 'p5', clientId: 'c3', name: 'Meltshop Upgrade', description: 'Complete meltshop modernization', type: 'rolling-mills', createdAt: '2024-08-01' },
+  { id: 'p6', clientId: 'c3', name: 'Environmental Systems', description: 'Emissions control system', type: 'water-solutions', createdAt: '2024-09-15' },
 ];
 
 export const FOLDERS: Folder[] = [
