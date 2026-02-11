@@ -232,8 +232,13 @@ const ExplorerPage = () => {
         />
       </div>
 
-      {/* Content */}
-      <div>
+      {/* Content + Comments layout */}
+      {(() => {
+        const projectBreadcrumb = breadcrumb.find(b => b.type === 'project');
+        const showComments = currentLevel.type === 'folder' && !!projectBreadcrumb;
+        return (
+          <div className={cn("flex gap-6", showComments && "items-start")}>
+          <div className="flex-1 min-w-0">
         {/* Back button */}
         {breadcrumb.length > 1 && (
           <button
@@ -377,94 +382,98 @@ const ExplorerPage = () => {
             <p>No hay contenido en esta carpeta</p>
           </div>
         )}
-      </div>
+          </div>
 
-      {/* Comments section at project level */}
-      {currentLevel.type === 'project' && (() => {
-        const projectComments = comments.filter(c => c.projectId === currentLevel.id);
-        const rootComments = projectComments.filter(c => !c.parentId);
+          {/* Comments panel on the right for folder level */}
+          {showComments && (() => {
+            const projectId = projectBreadcrumb!.id;
+            const projectComments = comments.filter(c => c.projectId === projectId);
+            const rootComments = projectComments.filter(c => !c.parentId);
 
-        const handleAddComment = () => {
-          if (!newComment.trim() || !user) return;
-          const comment = {
-            id: `cm-new-${Date.now()}`,
-            projectId: currentLevel.id,
-            userId: user.id,
-            parentId: null,
-            text: newComment,
-            createdAt: new Date().toISOString(),
-            likes: 0,
-          };
-          setComments([...comments, comment]);
-          setNewComment('');
-          toast.success('Comentario agregado');
-        };
+            const handleAddComment = () => {
+              if (!newComment.trim() || !user) return;
+              const comment = {
+                id: `cm-new-${Date.now()}`,
+                projectId,
+                userId: user.id,
+                parentId: null,
+                text: newComment,
+                createdAt: new Date().toISOString(),
+                likes: 0,
+              };
+              setComments([...comments, comment]);
+              setNewComment('');
+              toast.success('Comentario agregado');
+            };
 
-        const renderComment = (comment: typeof COMMENTS[0], depth = 0) => {
-          const author = USERS.find(u => u.id === comment.userId);
-          const replies = projectComments.filter(c => c.parentId === comment.id);
-          return (
-            <div key={comment.id} className={`${depth > 0 ? 'ml-8 border-l-2 border-border pl-4' : ''}`}>
-              <div className="py-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-semibold flex-shrink-0">
-                    {author?.name.charAt(0) || '?'}
+            const renderComment = (comment: typeof COMMENTS[0], depth = 0) => {
+              const author = USERS.find(u => u.id === comment.userId);
+              const replies = projectComments.filter(c => c.parentId === comment.id);
+              return (
+                <div key={comment.id} className={`${depth > 0 ? 'ml-6 border-l-2 border-border pl-3' : ''}`}>
+                  <div className="py-2.5">
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-semibold flex-shrink-0">
+                        {author?.name.charAt(0) || '?'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-xs font-semibold text-foreground">{author?.name}</span>
+                          <span className="text-[10px] text-muted-foreground">{new Date(comment.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
+                        </div>
+                        <p className="text-xs text-foreground/90 leading-relaxed">{comment.text}</p>
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <button className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors">
+                            <Reply className="w-3 h-3" />
+                            Responder
+                          </button>
+                          <button className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors">
+                            <Heart className="w-3 h-3" />
+                            {comment.likes > 0 && comment.likes}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-semibold text-foreground">{author?.name}</span>
-                      <span className="text-xs text-muted-foreground">{new Date(comment.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                  {replies.map(r => renderComment(r, depth + 1))}
+                </div>
+              );
+            };
+
+            return (
+              <div className="w-80 flex-shrink-0 bg-card border border-border rounded-xl overflow-hidden self-start sticky top-6">
+                <div className="p-3 border-b border-border">
+                  <h3 className="font-heading font-bold text-sm text-foreground flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-primary" />
+                    Comentarios ({projectComments.length})
+                  </h3>
+                </div>
+                <div className="max-h-[400px] overflow-auto p-3 divide-y divide-border">
+                  {rootComments.length > 0 ? (
+                    rootComments.map(c => renderComment(c))
+                  ) : (
+                    <div className="text-center py-6 text-muted-foreground text-xs">
+                      No hay comentarios aún
                     </div>
-                    <p className="text-sm text-foreground/90 leading-relaxed">{comment.text}</p>
-                    <div className="flex items-center gap-4 mt-2">
-                      <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
-                        <Reply className="w-3.5 h-3.5" />
-                        Responder
-                      </button>
-                      <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
-                        <Heart className="w-3.5 h-3.5" />
-                        {comment.likes > 0 && comment.likes}
-                      </button>
-                    </div>
+                  )}
+                </div>
+                <div className="p-3 border-t border-border">
+                  <div className="flex gap-2">
+                    <Textarea
+                      placeholder="Escribe un comentario..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      className="bg-secondary border-border text-foreground placeholder:text-muted-foreground resize-none min-h-[50px] text-xs"
+                      rows={2}
+                    />
+                    <Button onClick={handleAddComment} className="russula-gradient text-primary-foreground hover:opacity-90 self-end" size="icon">
+                      <Send className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
               </div>
-              {replies.map(r => renderComment(r, depth + 1))}
-            </div>
-          );
-        };
-
-        return (
-          <div className="mt-6 bg-card border border-border rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-border">
-              <h3 className="font-heading font-bold text-foreground flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-primary" />
-                Comentarios del Proyecto ({projectComments.length})
-              </h3>
-            </div>
-            <div className="max-h-96 overflow-auto p-4 divide-y divide-border">
-              {rootComments.length > 0 ? (
-                rootComments.map(c => renderComment(c))
-              ) : (
-                <div className="text-center py-8 text-muted-foreground text-sm">
-                  No hay comentarios aún
-                </div>
-              )}
-            </div>
-            <div className="p-4 border-t border-border">
-              <div className="flex gap-2">
-                <Textarea
-                  placeholder="Escribe un comentario..."
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground resize-none min-h-[60px]"
-                  rows={2}
-                />
-                <Button onClick={handleAddComment} className="russula-gradient text-primary-foreground hover:opacity-90 self-end" size="icon">
-                  <Send className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
+            );
+          })()}
           </div>
         );
       })()}
