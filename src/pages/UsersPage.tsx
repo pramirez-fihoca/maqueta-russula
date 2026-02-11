@@ -121,7 +121,7 @@ const UsersPage = () => {
         <div>
           <h1 className="font-heading text-2xl font-bold text-foreground">Gestión de Usuarios</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {isEditor ? 'Gestiona los usuarios Cliente de tus clientes asignados' : 'Administra usuarios y permisos de acceso'}
+            {isEditor ? 'Gestiona los usuarios de tus clientes asignados' : 'Administra usuarios y permisos de acceso'}
           </p>
         </div>
         <Button className="russula-gradient text-primary-foreground hover:opacity-90" onClick={openCreate}>
