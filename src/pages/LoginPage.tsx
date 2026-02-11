@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
+import russulaLogo from '@/assets/russula-logo.png';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -32,11 +33,8 @@ const LoginPage = () => {
         <div className="bg-card border border-border rounded-xl p-8 shadow-2xl animate-fade-in">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <div className="w-8 h-8 russula-gradient rounded-sm flex items-center justify-center">
-                <span className="text-primary-foreground font-heading font-bold text-sm">R</span>
-              </div>
-              <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">RUSSULA</h1>
+            <div className="flex items-center justify-center mb-2">
+              <img src={russulaLogo} alt="Russula" className="h-9" />
             </div>
             <p className="text-muted-foreground text-sm mt-2">Portal de Clientes</p>
           </div>
