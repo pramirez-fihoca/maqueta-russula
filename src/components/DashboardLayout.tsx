@@ -87,12 +87,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             })}
           </nav>
 
-          <div className="p-3 border-t border-border">
-            <div className="text-xs text-muted-foreground">
-              <p>{user!.company}</p>
-              <p className="mt-0.5 text-primary">{roleLabel}</p>
-            </div>
-          </div>
         </aside>
 
         {/* Main content */}
