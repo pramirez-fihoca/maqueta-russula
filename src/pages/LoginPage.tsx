@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { USERS } from '@/data/mockData';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,8 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
     if (login(email, password)) {
-      navigate('/dashboard');
+      const foundUser = USERS.find(u => u.email === email);
+      navigate(foundUser?.role === 'client' ? '/dashboard/explorer' : '/dashboard');
     } else {
       setError('Credenciales inválidas. Intente con un email de la lista de usuarios demo.');
     }
