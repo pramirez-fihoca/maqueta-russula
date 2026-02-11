@@ -118,8 +118,8 @@ const ExplorerPage = () => {
         )}
         {canUpload && (currentLevel.type === 'project' || currentLevel.type === 'folder') && (
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-secondary" onClick={() => toast.success('Carpeta creada (simulado)')}>
-              <FolderPlus className="w-4 h-4 mr-1.5" />
+            <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => toast.success('Carpeta creada (simulado)')}>
+              <Plus className="w-4 h-4 mr-1.5" />
               Nueva Carpeta
             </Button>
             <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => toast.success('Archivo subido (simulado)')}>
