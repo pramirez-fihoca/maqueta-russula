@@ -45,7 +45,15 @@ const UsersPage = () => {
   const openEdit = (user: User) => {
     setEditUser(user);
     setFormData({ name: user.name, email: user.email, role: user.role, company: user.company || '' });
-    setSelectedPermissions([]);
+    // Pre-fill permissions from assignedClients + their projects
+    const initialPerms: string[] = [];
+    if (user.assignedClients?.length) {
+      user.assignedClients.forEach(cId => {
+        initialPerms.push(cId);
+        PROJECTS.filter(p => p.clientId === cId).forEach(p => initialPerms.push(p.id));
+      });
+    }
+    setSelectedPermissions(initialPerms);
     setShowDialog(true);
   };
 
