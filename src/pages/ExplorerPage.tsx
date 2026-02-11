@@ -107,7 +107,7 @@ const ExplorerPage = () => {
             Nuevo Cliente
           </Button>
         )}
-        {canUpload && currentLevel.type !== 'root' && currentLevel.type !== 'client' && (
+        {canUpload && currentLevel.type !== 'root' && (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-secondary" onClick={() => toast.success('Carpeta creada (simulado)')}>
               <FolderPlus className="w-4 h-4 mr-1.5" />
