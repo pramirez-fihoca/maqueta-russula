@@ -28,6 +28,7 @@ const ExplorerPage = () => {
   const [showNewClient, setShowNewClient] = useState(false);
   const [newClientName, setNewClientName] = useState('');
   const [newClientDesc, setNewClientDesc] = useState('');
+  const [newClientAddress, setNewClientAddress] = useState('');
 
   const currentLevel = breadcrumb[breadcrumb.length - 1];
   const isAdmin = user?.role === 'admin';
@@ -54,11 +55,13 @@ const ExplorerPage = () => {
       id: `c${Date.now()}`,
       name: newClientName.trim(),
       description: newClientDesc.trim(),
+      address: newClientAddress.trim(),
       createdAt: new Date().toISOString().split('T')[0],
     };
     setLocalClients([...localClients, newClient]);
     setNewClientName('');
     setNewClientDesc('');
+    setNewClientAddress('');
     setShowNewClient(false);
     toast.success(`Cliente "${newClient.name}" creado correctamente`);
   };
@@ -236,6 +239,10 @@ const ExplorerPage = () => {
             <div className="space-y-2">
               <Label htmlFor="client-desc">Descripción</Label>
               <Textarea id="client-desc" placeholder="Breve descripción del cliente..." value={newClientDesc} onChange={e => setNewClientDesc(e.target.value)} className="bg-background border-border resize-none" rows={3} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="client-address">Dirección</Label>
+              <Input id="client-address" placeholder="Ej: Av. Principal 123, Ciudad, País" value={newClientAddress} onChange={e => setNewClientAddress(e.target.value)} className="bg-background border-border" />
             </div>
           </div>
           <DialogFooter>
