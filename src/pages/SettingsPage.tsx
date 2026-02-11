@@ -25,7 +25,7 @@ const SettingsPage = () => {
             <div>
               <p className="font-medium text-foreground">{user?.name}</p>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
-              <p className="text-xs text-primary mt-0.5">{user?.role === 'admin' ? 'Administrador' : user?.role === 'editor' ? 'Editor' : 'Cliente'}</p>
+              <p className="text-xs text-primary mt-0.5">{user?.role === 'admin' ? 'Administrador' : user?.role === 'editor' ? 'Responsable' : 'Cliente'}</p>
             </div>
           </div>
         </div>

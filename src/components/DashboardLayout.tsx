@@ -32,7 +32,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   const filteredNav = navItems.filter(item => item.roles.includes(user!.role));
 
-  const roleLabel = user!.role === 'admin' ? 'Administrador' : user!.role === 'editor' ? 'Editor' : 'Cliente';
+  const roleLabel = user!.role === 'admin' ? 'Administrador' : user!.role === 'editor' ? 'Responsable' : 'Cliente';
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
