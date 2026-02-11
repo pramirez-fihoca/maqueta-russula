@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { USERS, CLIENTS, PROJECTS, User } from '@/data/mockData';
+import { useAuth } from '@/contexts/AuthContext';
 import { UserPlus, Pencil, Trash2, Shield, Edit3, Eye, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +10,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
 const UsersPage = () => {
+  const { user: currentUser } = useAuth();
+  const isEditor = currentUser?.role === 'editor';
+  const isAdmin = currentUser?.role === 'admin';
+
   const [users, setUsers] = useState<User[]>(USERS);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [showDialog, setShowDialog] = useState(false);
@@ -17,8 +22,17 @@ const UsersPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
 
+  // For editors: only the clients assigned to them
+  const editorClientIds = isEditor ? (currentUser?.assignedClients || []) : [];
+  const editorClientNames = editorClientIds.map(cId => CLIENTS.find(c => c.id === cId)?.name).filter(Boolean) as string[];
+
   const filteredUsers = useMemo(() => {
-    return users.filter(u => {
+    let baseUsers = users;
+    // Editors only see client-role users belonging to their assigned clients
+    if (isEditor) {
+      baseUsers = users.filter(u => u.role === 'client' && editorClientNames.includes(u.company || ''));
+    }
+    return baseUsers.filter(u => {
       if (roleFilter !== 'all' && u.role !== roleFilter) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
@@ -33,7 +47,7 @@ const UsersPage = () => {
       }
       return true;
     });
-  }, [users, searchQuery, roleFilter]);
+  }, [users, searchQuery, roleFilter, isEditor, editorClientNames]);
 
   const openCreate = () => {
     setEditUser(null);
@@ -45,7 +59,6 @@ const UsersPage = () => {
   const openEdit = (user: User) => {
     setEditUser(user);
     setFormData({ name: user.name, email: user.email, role: user.role, company: user.company || '' });
-    // Pre-fill permissions from assignedClients + their projects
     const initialPerms: string[] = [];
     if (user.assignedClients?.length) {
       user.assignedClients.forEach(cId => {
@@ -91,12 +104,25 @@ const UsersPage = () => {
     return user.assignedClients.map(cId => CLIENTS.find(c => c.id === cId)?.name).filter(Boolean);
   };
 
+  // Clients visible in the permissions tree for the dialog
+  const getVisibleClientsForDialog = () => {
+    if (isEditor) {
+      return CLIENTS.filter(c => editorClientIds.includes(c.id));
+    }
+    if (formData.role === 'client' && formData.company) {
+      return CLIENTS.filter(c => c.name === formData.company);
+    }
+    return CLIENTS;
+  };
+
   return (
     <div className="p-6 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-heading text-2xl font-bold text-foreground">Gestión de Usuarios</h1>
-          <p className="text-sm text-muted-foreground mt-1">Administra usuarios y permisos de acceso</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {isEditor ? 'Gestiona los usuarios Cliente de tus clientes asignados' : 'Administra usuarios y permisos de acceso'}
+          </p>
         </div>
         <Button className="russula-gradient text-primary-foreground hover:opacity-90" onClick={openCreate}>
           <UserPlus className="w-4 h-4 mr-1.5" />
@@ -115,17 +141,19 @@ const UsersPage = () => {
             className="pl-9 bg-secondary border-border"
           />
         </div>
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-[180px] bg-secondary border-border">
-            <SelectValue placeholder="Filtrar por rol" />
-          </SelectTrigger>
-          <SelectContent className="bg-card border-border">
-            <SelectItem value="all">Todos los roles</SelectItem>
-            <SelectItem value="admin">Administrador</SelectItem>
-            <SelectItem value="editor">Responsable</SelectItem>
-            <SelectItem value="client">Cliente</SelectItem>
-          </SelectContent>
-        </Select>
+        {isAdmin && (
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-[180px] bg-secondary border-border">
+              <SelectValue placeholder="Filtrar por rol" />
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border">
+              <SelectItem value="all">Todos los roles</SelectItem>
+              <SelectItem value="admin">Administrador</SelectItem>
+              <SelectItem value="editor">Responsable</SelectItem>
+              <SelectItem value="client">Cliente</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {/* Users table */}
@@ -137,7 +165,9 @@ const UsersPage = () => {
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 hidden sm:table-cell">Email</th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Rol</th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 hidden md:table-cell">Empresa</th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 hidden lg:table-cell">Clientes Asignados</th>
+              {isAdmin && (
+                <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 hidden lg:table-cell">Clientes Asignados</th>
+              )}
               <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Acciones</th>
             </tr>
           </thead>
@@ -163,27 +193,31 @@ const UsersPage = () => {
                       {u.role === 'client' ? CLIENTS.find(c => c.name === u.company)?.name || u.company : u.company}
                     </span>
                   </td>
-                  <td className="px-4 py-3 hidden lg:table-cell">
-                    {clientNames ? (
-                      <div className="flex flex-wrap gap-1">
-                        {clientNames.map((name, i) => (
-                          <span key={i} className="text-xs bg-secondary px-2 py-0.5 rounded-full text-muted-foreground">
-                            {name}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground/40">—</span>
-                    )}
-                  </td>
+                  {isAdmin && (
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      {clientNames ? (
+                        <div className="flex flex-wrap gap-1">
+                          {clientNames.map((name, i) => (
+                            <span key={i} className="text-xs bg-secondary px-2 py-0.5 rounded-full text-muted-foreground">
+                              {name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/40">—</span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => openEdit(u)}>
                         <Pencil className="w-3.5 h-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(u.id)}>
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+                      {isAdmin && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(u.id)}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -191,7 +225,7 @@ const UsersPage = () => {
             })}
             {filteredUsers.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={isAdmin ? 6 : 5} className="px-4 py-8 text-center text-sm text-muted-foreground">
                   No se encontraron usuarios
                 </td>
               </tr>
@@ -218,18 +252,33 @@ const UsersPage = () => {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">Rol</label>
-                <Select value={formData.role} onValueChange={v => setFormData({ ...formData, role: v as User['role'] })}>
-                  <SelectTrigger className="bg-secondary border-border"><SelectValue /></SelectTrigger>
-                  <SelectContent className="bg-card border-border">
-                    <SelectItem value="admin">Administrador</SelectItem>
-                    <SelectItem value="editor">Responsable</SelectItem>
-                    <SelectItem value="client">Cliente</SelectItem>
-                  </SelectContent>
-                </Select>
+                {isEditor ? (
+                  <Input value="Cliente" disabled className="bg-secondary border-border text-muted-foreground" />
+                ) : (
+                  <Select value={formData.role} onValueChange={v => setFormData({ ...formData, role: v as User['role'] })}>
+                    <SelectTrigger className="bg-secondary border-border"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="admin">Administrador</SelectItem>
+                      <SelectItem value="editor">Responsable</SelectItem>
+                      <SelectItem value="client">Cliente</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">Empresa</label>
-                <Input value={formData.company} onChange={e => setFormData({ ...formData, company: e.target.value })} className="bg-secondary border-border" />
+                {isEditor ? (
+                  <Select value={formData.company} onValueChange={v => setFormData({ ...formData, company: v })}>
+                    <SelectTrigger className="bg-secondary border-border"><SelectValue placeholder="Seleccionar cliente" /></SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      {editorClientNames.map(name => (
+                        <SelectItem key={name} value={name}>{name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input value={formData.company} onChange={e => setFormData({ ...formData, company: e.target.value })} className="bg-secondary border-border" />
+                )}
               </div>
             </div>
 
@@ -238,9 +287,7 @@ const UsersPage = () => {
               <label className="text-sm font-medium">Permisos de Acceso</label>
               <div className="bg-secondary rounded-lg p-3 max-h-48 overflow-auto space-y-2">
                 {(() => {
-                  const visibleClients = formData.role === 'client' && formData.company
-                    ? CLIENTS.filter(c => c.name === formData.company)
-                    : CLIENTS;
+                  const visibleClients = getVisibleClientsForDialog();
                   return visibleClients.map(client => (
                     <div key={client.id}>
                       <div className="flex items-center gap-2">
@@ -258,7 +305,7 @@ const UsersPage = () => {
                     </div>
                   ));
                 })()}
-                {formData.role === 'client' && !formData.company && (
+                {!isEditor && formData.role === 'client' && !formData.company && (
                   <p className="text-xs text-muted-foreground italic">Introduce el nombre de la empresa para ver sus proyectos</p>
                 )}
               </div>
