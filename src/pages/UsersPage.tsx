@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { USERS, CLIENTS, PROJECTS, User } from '@/data/mockData';
-import { UserPlus, Pencil, Trash2, X, Check, Shield, Edit3, Eye } from 'lucide-react';
+import { UserPlus, Pencil, Trash2, Shield, Edit3, Eye, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,6 +14,26 @@ const UsersPage = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', role: 'client' as User['role'], company: '' });
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+
+  const filteredUsers = useMemo(() => {
+    return users.filter(u => {
+      if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const clientNames = u.role === 'editor' && u.assignedClients
+          ? u.assignedClients.map(cId => CLIENTS.find(c => c.id === cId)?.name || '').join(' ').toLowerCase()
+          : '';
+        return u.name.toLowerCase().includes(q)
+          || u.email.toLowerCase().includes(q)
+          || (u.company || '').toLowerCase().includes(q)
+          || u.role.toLowerCase().includes(q)
+          || clientNames.includes(q);
+      }
+      return true;
+    });
+  }, [users, searchQuery, roleFilter]);
 
   const openCreate = () => {
     setEditUser(null);
@@ -58,6 +78,11 @@ const UsersPage = () => {
     }
   };
 
+  const getAssignedClientNames = (user: User) => {
+    if (user.role !== 'editor' || !user.assignedClients?.length) return null;
+    return user.assignedClients.map(cId => CLIENTS.find(c => c.id === cId)?.name).filter(Boolean);
+  };
+
   return (
     <div className="p-6 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
@@ -71,6 +96,30 @@ const UsersPage = () => {
         </Button>
       </div>
 
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por nombre, email, empresa..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="pl-9 bg-secondary border-border"
+          />
+        </div>
+        <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <SelectTrigger className="w-[180px] bg-secondary border-border">
+            <SelectValue placeholder="Filtrar por rol" />
+          </SelectTrigger>
+          <SelectContent className="bg-card border-border">
+            <SelectItem value="all">Todos los roles</SelectItem>
+            <SelectItem value="admin">Administrador</SelectItem>
+            <SelectItem value="editor">Responsable</SelectItem>
+            <SelectItem value="client">Cliente</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Users table */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full">
@@ -80,44 +129,68 @@ const UsersPage = () => {
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 hidden sm:table-cell">Email</th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Rol</th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 hidden md:table-cell">Empresa</th>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3 hidden lg:table-cell">Clientes Asignados</th>
               <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {users.map(u => (
-              <tr key={u.id} className="hover:bg-secondary/50 transition-colors">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-semibold">
-                      {u.name.charAt(0)}
+            {filteredUsers.map(u => {
+              const clientNames = getAssignedClientNames(u);
+              return (
+                <tr key={u.id} className="hover:bg-secondary/50 transition-colors">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary text-sm font-semibold">
+                        {u.name.charAt(0)}
+                      </div>
+                      <span className="text-sm font-medium text-foreground">{u.name}</span>
                     </div>
-                    <span className="text-sm font-medium text-foreground">{u.name}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 hidden sm:table-cell">
-                  <span className="text-sm text-muted-foreground">{u.email}</span>
-                </td>
-                <td className="px-4 py-3">{getRoleBadge(u.role)}</td>
-                <td className="px-4 py-3 hidden md:table-cell">
-                  <span className="text-sm text-muted-foreground">
-                    {u.role === 'client' ? CLIENTS.find(c => c.name === u.company)?.name || u.company : u.company}
-                  </span>
-                  {u.role === 'client' && u.company && (
-                    <span className="block text-xs text-muted-foreground/60">Cliente</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => openEdit(u)}>
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(u.id)}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
+                  </td>
+                  <td className="px-4 py-3 hidden sm:table-cell">
+                    <span className="text-sm text-muted-foreground">{u.email}</span>
+                  </td>
+                  <td className="px-4 py-3">{getRoleBadge(u.role)}</td>
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    <span className="text-sm text-muted-foreground">
+                      {u.role === 'client' ? CLIENTS.find(c => c.name === u.company)?.name || u.company : u.company}
+                    </span>
+                    {u.role === 'client' && u.company && (
+                      <span className="block text-xs text-muted-foreground/60">Cliente</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 hidden lg:table-cell">
+                    {clientNames ? (
+                      <div className="flex flex-wrap gap-1">
+                        {clientNames.map((name, i) => (
+                          <span key={i} className="text-xs bg-secondary px-2 py-0.5 rounded-full text-muted-foreground">
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground/40">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => openEdit(u)}>
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(u.id)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+            {filteredUsers.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  No se encontraron usuarios
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
