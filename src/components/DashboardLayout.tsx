@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import russulaLogo from '@/assets/russula-logo.png';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate, useLocation, Link } from 'react-router-dom';
 import { 
@@ -38,12 +39,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
 
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 russula-gradient rounded-sm flex items-center justify-center">
-            <span className="text-primary-foreground font-heading font-bold text-xs">R</span>
-          </div>
-          <span className="font-heading font-bold text-foreground text-lg tracking-tight hidden sm:block">RUSSULA</span>
-        </div>
+        <img src={russulaLogo} alt="Russula" className="h-7" />
 
         <div className="flex-1" />
 
