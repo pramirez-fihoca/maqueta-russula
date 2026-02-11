@@ -90,12 +90,6 @@ const DocumentPage = () => {
         </button>
 
         <div className="space-y-6">
-          {/* File preview placeholder */}
-          <div className="aspect-[4/3] bg-card rounded-xl border border-border flex flex-col items-center justify-center">
-            <FileText className="w-16 h-16 text-muted-foreground/30 mb-3" />
-            <p className="text-muted-foreground text-sm">Vista previa no disponible</p>
-            <p className="text-muted-foreground/60 text-xs mt-1">{doc.name}</p>
-          </div>
 
           {/* File details */}
           <div className="bg-card rounded-xl border border-border p-5 space-y-3">
