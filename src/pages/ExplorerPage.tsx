@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { CLIENTS, PROJECTS, FOLDERS, DOCUMENTS, formatFileSize, Client } from '@/data/mockData';
+import { CLIENTS, PROJECTS, FOLDERS, DOCUMENTS, formatFileSize, Client, Project, ProjectType } from '@/data/mockData';
 import { 
   Folder, FileText, ChevronRight, Upload, FolderPlus, Search, 
-  Download, Trash2, ArrowLeft, File, MessageSquare, Plus, Building2, Briefcase
+  Download, Trash2, ArrowLeft, File, MessageSquare, Plus, Building2, Briefcase,
+  Droplets, BarChart3, Globe
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,28 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+import { CalendarIcon } from 'lucide-react';
+
+const PROJECT_TYPES: { value: ProjectType; label: string; icon: React.ReactNode }[] = [
+  { value: 'rolling-mills', label: 'Rolling Mills', icon: <BarChart3 className="w-4 h-4" /> },
+  { value: 'water-solutions', label: 'Water Solutions', icon: <Droplets className="w-4 h-4" /> },
+  { value: 'digitalization', label: 'Digitalization', icon: <Globe className="w-4 h-4" /> },
+];
+
+const getProjectTypeIcon = (type?: ProjectType) => {
+  switch (type) {
+    case 'water-solutions': return <Droplets className="w-4 h-4 text-primary" />;
+    case 'rolling-mills': return <BarChart3 className="w-4 h-4 text-primary" />;
+    case 'digitalization': return <Globe className="w-4 h-4 text-primary" />;
+    default: return <Briefcase className="w-4 h-4 text-primary" />;
+  }
+};
 
 type BreadcrumbItem = { id: string; name: string; type: 'root' | 'client' | 'project' | 'folder' };
 
@@ -39,6 +62,11 @@ const ExplorerPage = () => {
   const [newClientName, setNewClientName] = useState('');
   const [newClientDesc, setNewClientDesc] = useState('');
   const [newClientAddress, setNewClientAddress] = useState('');
+  const [showNewProject, setShowNewProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [newProjectType, setNewProjectType] = useState<ProjectType | ''>('');
+  const [newProjectDate, setNewProjectDate] = useState<Date>();
+  const [localProjects, setLocalProjects] = useState<Project[]>(PROJECTS);
 
   const currentLevel = breadcrumb[breadcrumb.length - 1];
   const isAdmin = user?.role === 'admin';
@@ -56,7 +84,7 @@ const ExplorerPage = () => {
   };
 
   // Determine content based on current level
-  let folders: { id: string; name: string; type: 'client' | 'project' | 'folder'; date: string }[] = [];
+  let folders: { id: string; name: string; type: 'client' | 'project' | 'folder'; date: string; projectType?: ProjectType }[] = [];
   let documents: typeof DOCUMENTS = [];
 
   const handleCreateClient = () => {
@@ -76,10 +104,28 @@ const ExplorerPage = () => {
     toast.success(`Cliente "${newClient.name}" creado correctamente`);
   };
 
+  const handleCreateProject = () => {
+    if (!newProjectName.trim() || !newProjectType || !newProjectDate) return;
+    const newProject: Project = {
+      id: `p${Date.now()}`,
+      clientId: currentLevel.id,
+      name: newProjectName.trim(),
+      description: '',
+      type: newProjectType as ProjectType,
+      createdAt: format(newProjectDate, 'yyyy-MM-dd'),
+    };
+    setLocalProjects([...localProjects, newProject]);
+    setNewProjectName('');
+    setNewProjectType('');
+    setNewProjectDate(undefined);
+    setShowNewProject(false);
+    toast.success(`Proyecto "${newProject.name}" creado correctamente`);
+  };
+
   if (currentLevel.type === 'root') {
     folders = localClients.map(c => ({ id: c.id, name: c.name, type: 'client' as const, date: c.createdAt }));
   } else if (currentLevel.type === 'client') {
-    folders = PROJECTS.filter(p => p.clientId === currentLevel.id).map(p => ({ id: p.id, name: p.name, type: 'project' as const, date: p.createdAt }));
+    folders = localProjects.filter(p => p.clientId === currentLevel.id).map(p => ({ id: p.id, name: p.name, type: 'project' as const, date: p.createdAt, projectType: p.type }));
   } else if (currentLevel.type === 'project') {
     folders = FOLDERS.filter(f => f.projectId === currentLevel.id && !f.parentId).map(f => ({ id: f.id, name: f.name, type: 'folder' as const, date: f.createdAt }));
     documents = DOCUMENTS.filter(d => {
@@ -125,7 +171,7 @@ const ExplorerPage = () => {
           </Button>
         )}
         {canUpload && currentLevel.type === 'client' && (
-          <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => toast.success('Proyecto creado (simulado)')}>
+          <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => setShowNewProject(true)}>
             <Plus className="w-4 h-4 mr-1.5" />
             Nuevo Proyecto
           </Button>
@@ -192,7 +238,7 @@ const ExplorerPage = () => {
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary transition-colors group"
           >
             <div className="w-9 h-9 rounded bg-primary/15 flex items-center justify-center">
-              {folder.type === 'client' ? <Building2 className="w-4 h-4 text-primary" /> : folder.type === 'project' ? <Briefcase className="w-4 h-4 text-primary" /> : <Folder className="w-4 h-4 text-primary" />}
+              {folder.type === 'client' ? <Building2 className="w-4 h-4 text-primary" /> : folder.type === 'project' ? getProjectTypeIcon(folder.projectType) : <Folder className="w-4 h-4 text-primary" />}
             </div>
             <button
               className="flex-1 text-left"
@@ -284,6 +330,58 @@ const ExplorerPage = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewClient(false)}>Cancelar</Button>
             <Button className="russula-gradient text-primary-foreground hover:opacity-90" onClick={handleCreateClient} disabled={!newClientName.trim()}>Crear Cliente</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Nuevo Proyecto */}
+      <Dialog open={showNewProject} onOpenChange={setShowNewProject}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="font-heading flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-primary" />
+              Nuevo Proyecto
+            </DialogTitle>
+            <DialogDescription>Crea un nuevo proyecto dentro de este cliente.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="project-name">Nombre del Proyecto</Label>
+              <Input id="project-name" placeholder="Ej: Hot Rolling Mill Upgrade" value={newProjectName} onChange={e => setNewProjectName(e.target.value)} className="bg-background border-border" />
+            </div>
+            <div className="space-y-2">
+              <Label>Tipo de Proyecto</Label>
+              <Select value={newProjectType} onValueChange={(v) => setNewProjectType(v as ProjectType)}>
+                <SelectTrigger className="bg-background border-border">
+                  <SelectValue placeholder="Selecciona un tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PROJECT_TYPES.map(pt => (
+                    <SelectItem key={pt.value} value={pt.value}>
+                      <span className="flex items-center gap-2">{pt.icon} {pt.label}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Fecha del Proyecto</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal bg-background border-border", !newProjectDate && "text-muted-foreground")}>
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {newProjectDate ? format(newProjectDate, "PPP", { locale: es }) : <span>Selecciona una fecha</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar mode="single" selected={newProjectDate} onSelect={setNewProjectDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowNewProject(false)}>Cancelar</Button>
+            <Button className="russula-gradient text-primary-foreground hover:opacity-90" onClick={handleCreateProject} disabled={!newProjectName.trim() || !newProjectType || !newProjectDate}>Crear Proyecto</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
