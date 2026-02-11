@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { DOWNLOAD_RECORDS, DOCUMENTS, USERS, FOLDERS, PROJECTS, CLIENTS, COMMENTS } from '@/data/mockData';
-import { Download, FileDown, Search, Upload, Eye, MessageSquare } from 'lucide-react';
+import { Download, FileDown, Search, Upload, Eye, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -16,6 +16,8 @@ interface ActivityRecord {
   dateTime: string;
 }
 
+const ITEMS_PER_PAGE = 10;
+
 const ActivityPage = () => {
   const [filterUser, setFilterUser] = useState('all');
   const [filterProject, setFilterProject] = useState('all');
@@ -23,6 +25,7 @@ const ActivityPage = () => {
   const [filterDateFrom, setFilterDateFrom] = useState('');
   const [filterDateTo, setFilterDateTo] = useState('');
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Build unified activity records from all sources
   const allRecords: ActivityRecord[] = useMemo(() => {
@@ -81,6 +84,13 @@ const ActivityPage = () => {
     filtered = filtered.filter(r => r.doc?.name.toLowerCase().includes(q) || r.user?.name.toLowerCase().includes(q));
   }
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedRecords = filtered.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
+
+  // Reset to page 1 when filters change
+  const resetPage = (setter: (v: string) => void) => (v: string) => { setter(v); setCurrentPage(1); };
+
   const uniqueUsers = [...new Map(USERS.map(u => [u.id, u])).values()];
 
   // Stats
@@ -133,9 +143,9 @@ const ActivityPage = () => {
       <div className="flex flex-wrap gap-3 mb-6 items-end">
         <div className="relative flex-1 min-w-[180px] max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card border-border text-foreground" />
+          <Input placeholder="Buscar..." value={search} onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }} className="pl-10 bg-card border-border text-foreground" />
         </div>
-        <Select value={filterUser} onValueChange={setFilterUser}>
+        <Select value={filterUser} onValueChange={resetPage(setFilterUser)}>
           <SelectTrigger className="w-[170px] bg-card border-border text-foreground">
             <SelectValue placeholder="Usuario" />
           </SelectTrigger>
@@ -144,7 +154,7 @@ const ActivityPage = () => {
             {uniqueUsers.map(u => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Select value={filterProject} onValueChange={setFilterProject}>
+        <Select value={filterProject} onValueChange={resetPage(setFilterProject)}>
           <SelectTrigger className="w-[170px] bg-card border-border text-foreground">
             <SelectValue placeholder="Proyecto" />
           </SelectTrigger>
@@ -153,7 +163,7 @@ const ActivityPage = () => {
             {PROJECTS.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Select value={filterAction} onValueChange={setFilterAction}>
+        <Select value={filterAction} onValueChange={resetPage(setFilterAction)}>
           <SelectTrigger className="w-[170px] bg-card border-border text-foreground">
             <SelectValue placeholder="Acción" />
           </SelectTrigger>
@@ -168,11 +178,11 @@ const ActivityPage = () => {
         <div className="flex items-center gap-2">
           <div>
             <label className="text-xs text-muted-foreground block mb-1">Desde</label>
-            <Input type="date" value={filterDateFrom} onChange={e => setFilterDateFrom(e.target.value)} className="w-[150px] bg-card border-border text-foreground text-sm" />
+            <Input type="date" value={filterDateFrom} onChange={e => { setFilterDateFrom(e.target.value); setCurrentPage(1); }} className="w-[150px] bg-card border-border text-foreground text-sm" />
           </div>
           <div>
             <label className="text-xs text-muted-foreground block mb-1">Hasta</label>
-            <Input type="date" value={filterDateTo} onChange={e => setFilterDateTo(e.target.value)} className="w-[150px] bg-card border-border text-foreground text-sm" />
+            <Input type="date" value={filterDateTo} onChange={e => { setFilterDateTo(e.target.value); setCurrentPage(1); }} className="w-[150px] bg-card border-border text-foreground text-sm" />
           </div>
         </div>
       </div>
@@ -191,7 +201,7 @@ const ActivityPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {filtered.map(record => {
+              {paginatedRecords.map(record => {
                 const config = actionConfig[record.action];
                 const Icon = config.icon;
                 return (
@@ -235,6 +245,34 @@ const ActivityPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-border px-4 py-3">
+            <p className="text-xs text-muted-foreground">
+              Mostrando {(safePage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(safePage * ITEMS_PER_PAGE, filtered.length)} de {filtered.length} registros
+            </p>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" disabled={safePage <= 1} onClick={() => setCurrentPage(safePage - 1)}>
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <Button
+                  key={page}
+                  variant={page === safePage ? 'default' : 'ghost'}
+                  size="icon"
+                  className={`h-8 w-8 text-xs ${page === safePage ? 'russula-gradient text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </Button>
+              ))}
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" disabled={safePage >= totalPages} onClick={() => setCurrentPage(safePage + 1)}>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
