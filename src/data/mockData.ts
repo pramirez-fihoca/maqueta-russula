@@ -13,6 +13,7 @@ export interface Client {
   id: string;
   name: string;
   description: string;
+  address: string;
   createdAt: string;
 }
 
@@ -79,9 +80,9 @@ export const USERS: User[] = [
 ];
 
 export const CLIENTS: Client[] = [
-  { id: 'c1', name: 'Steel Corp', description: 'Major steel producer in North America', createdAt: '2024-01-15' },
-  { id: 'c2', name: 'Metalworks SA', description: 'European steel manufacturing company', createdAt: '2024-03-20' },
-  { id: 'c3', name: 'Iron Industries', description: 'South American iron and steel producer', createdAt: '2024-06-10' },
+  { id: 'c1', name: 'Steel Corp', description: 'Major steel producer in North America', address: '1200 Steel Avenue, Pittsburgh, PA 15201, USA', createdAt: '2024-01-15' },
+  { id: 'c2', name: 'Metalworks SA', description: 'European steel manufacturing company', address: 'Industriestraße 45, 40210 Düsseldorf, Germany', createdAt: '2024-03-20' },
+  { id: 'c3', name: 'Iron Industries', description: 'South American iron and steel producer', address: 'Av. Paulista 1578, São Paulo, SP 01310-200, Brazil', createdAt: '2024-06-10' },
 ];
 
 export const PROJECTS: Project[] = [
