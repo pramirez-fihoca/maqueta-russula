@@ -110,7 +110,13 @@ const ExplorerPage = () => {
             Nuevo Cliente
           </Button>
         )}
-        {canUpload && currentLevel.type !== 'root' && (
+        {canUpload && currentLevel.type === 'client' && (
+          <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-secondary" onClick={() => toast.success('Proyecto creado (simulado)')}>
+            <FolderPlus className="w-4 h-4 mr-1.5" />
+            Nuevo Proyecto
+          </Button>
+        )}
+        {canUpload && (currentLevel.type === 'project' || currentLevel.type === 'folder') && (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="border-border text-foreground hover:bg-secondary" onClick={() => toast.success('Carpeta creada (simulado)')}>
               <FolderPlus className="w-4 h-4 mr-1.5" />
