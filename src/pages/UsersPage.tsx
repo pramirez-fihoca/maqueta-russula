@@ -99,7 +99,12 @@ const UsersPage = () => {
                 </td>
                 <td className="px-4 py-3">{getRoleBadge(u.role)}</td>
                 <td className="px-4 py-3 hidden md:table-cell">
-                  <span className="text-sm text-muted-foreground">{u.company}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {u.role === 'client' ? CLIENTS.find(c => c.name === u.company)?.name || u.company : u.company}
+                  </span>
+                  {u.role === 'client' && u.company && (
+                    <span className="block text-xs text-muted-foreground/60">Cliente</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-1">
