@@ -175,13 +175,16 @@ export const DOCUMENTS: Document[] = [
 ];
 
 export const COMMENTS: Comment[] = [
-  { id: 'cm1', projectId: 'p1', userId: 'u3', parentId: null, text: 'The general layout looks good. Can we get an updated version with the new conveyor positions?', createdAt: '2024-03-02T10:30:00', likes: 2 },
-  { id: 'cm2', projectId: 'p1', userId: 'u2', parentId: 'cm1', text: '@John Smith Sure, we will update the layout by next week. The new conveyor positions are being finalized.', createdAt: '2024-03-02T14:15:00', likes: 1 },
-  { id: 'cm3', projectId: 'p1', userId: 'u1', parentId: null, text: 'Please review the safety clearances in section 3. We need to ensure compliance with the latest standards.', createdAt: '2024-03-03T09:00:00', likes: 0 },
-  { id: 'cm4', projectId: 'p1', userId: 'u3', parentId: null, text: 'Version 2.1 addresses all our previous comments. Approved from our side.', createdAt: '2024-02-25T16:00:00', likes: 3 },
-  { id: 'cm5', projectId: 'p3', userId: 'u7', parentId: null, text: 'Excellent work on the technical specifications. Our engineering team has reviewed and we have no further comments.', createdAt: '2024-02-26T11:30:00', likes: 2 },
-  { id: 'cm6', projectId: 'p2', userId: 'u4', parentId: null, text: 'We need to discuss the rolling force calculations in section 4.2. Can we schedule a meeting?', createdAt: '2024-06-20T08:45:00', likes: 1 },
-  { id: 'cm7', projectId: 'p2', userId: 'u2', parentId: 'cm6', text: '@Anna Mueller Absolutely. I will send a meeting invite for next Tuesday. @Laura Fernández please join as well.', createdAt: '2024-06-20T10:00:00', likes: 0 },
+  { id: 'cm1', projectId: 'p1', userId: 'u3', parentId: null, text: 'El layout general tiene buena pinta. ¿Podemos obtener una versión actualizada con las nuevas posiciones del transportador?', createdAt: '2024-03-02T10:30:00', likes: 2 },
+  { id: 'cm2', projectId: 'p1', userId: 'u2', parentId: 'cm1', text: '@John Smith Claro, actualizaremos el layout la próxima semana. Las nuevas posiciones del transportador se están finalizando.', createdAt: '2024-03-02T14:15:00', likes: 1 },
+  { id: 'cm3', projectId: 'p1', userId: 'u1', parentId: null, text: 'Por favor revisar las distancias de seguridad en la sección 3. Necesitamos asegurar el cumplimiento con la normativa vigente.', createdAt: '2024-03-03T09:00:00', likes: 0 },
+  { id: 'cm4', projectId: 'p1', userId: 'u2', parentId: null, text: '📎 Se ha subido un nuevo archivo: "General-Layout-Rev2.1.pdf". @John Smith por favor revísalo cuando puedas.', createdAt: '2024-03-04T08:00:00', likes: 1 },
+  { id: 'cm5', projectId: 'p1', userId: 'u3', parentId: null, text: 'La versión 2.1 resuelve todos nuestros comentarios anteriores. Aprobado por nuestra parte.', createdAt: '2024-03-05T16:00:00', likes: 3 },
+  { id: 'cm6', projectId: 'p3', userId: 'u7', parentId: null, text: 'Excelente trabajo con las especificaciones técnicas. Nuestro equipo de ingeniería las ha revisado y no tenemos más comentarios.', createdAt: '2024-02-26T11:30:00', likes: 2 },
+  { id: 'cm7', projectId: 'p3', userId: 'u2', parentId: null, text: '📎 Se ha subido un nuevo archivo: "CCL-WaterSystem-Specs-v2.pdf". @David Chen revisa la sección 5 de tratamiento de aguas residuales.', createdAt: '2024-03-01T09:00:00', likes: 0 },
+  { id: 'cm8', projectId: 'p2', userId: 'u4', parentId: null, text: 'Necesitamos revisar los cálculos de fuerza de laminación en la sección 4.2. ¿Podemos agendar una reunión?', createdAt: '2024-06-20T08:45:00', likes: 1 },
+  { id: 'cm9', projectId: 'p2', userId: 'u2', parentId: 'cm8', text: '@Anna Mueller Por supuesto. Enviaré una invitación para el próximo martes. @Laura Fernández únete también por favor.', createdAt: '2024-06-20T10:00:00', likes: 0 },
+  { id: 'cm10', projectId: 'p2', userId: 'u6', parentId: null, text: '📎 Se ha subido un nuevo archivo: "CRM-RollingForce-Calcs-Rev3.xlsx". @Anna Mueller aquí están los cálculos actualizados que solicitaste.', createdAt: '2024-06-22T11:30:00', likes: 2 },
 ];
 
 export const DOWNLOAD_RECORDS: DownloadRecord[] = [
