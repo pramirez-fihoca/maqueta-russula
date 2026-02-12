@@ -445,7 +445,7 @@ const ExplorerPage = () => {
             };
 
             return (
-              <div className="w-80 flex-shrink-0 bg-card border border-border rounded-xl overflow-hidden self-start sticky top-6">
+              <div className="w-96 flex-shrink-0 bg-card border border-border rounded-xl overflow-hidden self-start sticky top-6">
                 <div className="p-3 border-b border-border">
                   <h3 className="font-heading font-bold text-sm text-foreground flex items-center gap-2">
                     <MessageSquare className="w-4 h-4 text-primary" />
