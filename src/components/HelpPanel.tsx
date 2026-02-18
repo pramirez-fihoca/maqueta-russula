@@ -1,11 +1,5 @@
 import { useLocation } from "react-router-dom";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -74,7 +68,9 @@ const DashboardGuide = () => (
     <section>
       <SectionTitle>Introducción</SectionTitle>
       <p className="text-sm text-muted-foreground leading-relaxed">
-        El <span className="text-foreground font-medium">Dashboard</span> ofrece una visión ejecutiva del estado global del portal: proyectos activos, presencia geográfica, salud documental e interacción con clientes, todo en tiempo real.
+        El <span className="text-foreground font-medium">Dashboard</span> ofrece una visión ejecutiva del estado global
+        del portal: proyectos activos, presencia geográfica, salud documental e interacción con clientes, todo en tiempo
+        real.
       </p>
     </section>
 
@@ -197,7 +193,8 @@ const DashboardGuide = () => (
           <p className="text-sm font-semibold text-primary">Registro de eventos del portal</p>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          El feed muestra en tiempo real las últimas descargas, comentarios y altas de usuario. Es la fuente de verdad para auditar quién hace qué y cuándo dentro del portal.
+          El feed muestra en tiempo real las últimas descargas, comentarios y altas de usuario. Es la fuente de verdad
+          para auditar quién hace qué y cuándo dentro del portal.
         </p>
       </div>
     </section>
@@ -217,7 +214,9 @@ const ExplorerGuide = () => (
     <section>
       <SectionTitle>Introducción</SectionTitle>
       <p className="text-sm text-muted-foreground leading-relaxed">
-        El <span className="text-foreground font-medium">Explorador de Documentos</span> es el núcleo operativo de Russula. Desde aquí gestionas toda la documentación técnica de tus proyectos: subes planos, revisas versiones, compartes archivos con clientes y mantienes un registro ordenado de cada entrega.
+        El <span className="text-foreground font-medium">Explorador de Documentos</span> es el núcleo operativo de
+        Russula. Desde aquí gestionas toda la documentación técnica de tus proyectos: subes planos, revisas versiones,
+        compartes archivos con clientes y mantienes un registro ordenado de cada entrega.
       </p>
     </section>
 
@@ -298,13 +297,17 @@ const ExplorerGuide = () => (
           <p className="text-sm font-semibold text-primary">Notas contextuales por nivel</p>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Cada cliente, proyecto y carpeta tiene su propio hilo de comentarios. Las notas quedan ancladas al nivel en que se crean, lo que permite mantener conversaciones técnicas organizadas sin perder el contexto del documento o fase de obra.
+          Cada cliente, proyecto y carpeta tiene su propio hilo de comentarios. Las notas quedan ancladas al nivel en
+          que se crean, lo que permite mantener conversaciones técnicas organizadas sin perder el contexto del documento
+          o fase de obra.
         </p>
       </div>
     </section>
 
     <div className="pt-2 pb-4 border-t border-border">
-      <p className="text-xs text-muted-foreground text-center">Manual de Usuario · Capítulo 1 · Russula Platform v1.0</p>
+      <p className="text-xs text-muted-foreground text-center">
+        Manual de Usuario · Capítulo 1 · Russula Platform v1.0
+      </p>
     </div>
   </div>
 );
@@ -317,39 +320,25 @@ const HelpPanel = () => {
   const [open, setOpen] = useState(false);
 
   const isDashboard = pathname === "/dashboard";
-  const isExplorer =
-    pathname.startsWith("/dashboard/explorer") ||
-    pathname.startsWith("/dashboard/document");
+  const isExplorer = pathname.startsWith("/dashboard/explorer") || pathname.startsWith("/dashboard/document");
 
-  const title = isDashboard
-    ? "Guía del Dashboard"
-    : isExplorer
-    ? "Capítulo 1 · Explorador"
-    : "Manual de Usuario";
+  const title = isDashboard ? "Guía del Dashboard" : isExplorer ? "Explorador de documentos" : "Manual de Usuario";
 
   const subtitle = isDashboard
     ? "Métricas y análisis"
     : isExplorer
-    ? "Navegación y Gestión Documental"
-    : "Ayuda contextual";
+      ? "Navegación y Gestión Documental"
+      : "Ayuda contextual";
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-muted-foreground hover:text-foreground"
-          title="Ayuda"
-        >
+        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" title="Ayuda">
           <HelpCircle className="w-4 h-4" />
         </Button>
       </SheetTrigger>
 
-      <SheetContent
-        side="right"
-        className="w-[420px] sm:max-w-[420px] p-0 flex flex-col"
-      >
+      <SheetContent side="right" className="w-[420px] sm:max-w-[420px] p-0 flex flex-col">
         {/* Header */}
         <SheetHeader className="px-7 pt-7 pb-5 border-b border-border flex-shrink-0">
           <div className="flex items-center gap-3 mb-1">
@@ -357,22 +346,15 @@ const HelpPanel = () => {
               <HelpCircle className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">
-                {subtitle}
-              </p>
-              <SheetTitle className="text-xl font-bold text-foreground leading-tight">
-                {title}
-              </SheetTitle>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">{subtitle}</p>
+              <SheetTitle className="text-xl font-bold text-foreground leading-tight">{title}</SheetTitle>
             </div>
           </div>
         </SheetHeader>
 
         {/* Content with fade transition */}
         <ScrollArea className="flex-1">
-          <div
-            key={pathname}
-            className="animate-fade-in"
-          >
+          <div key={pathname} className="animate-fade-in">
             {isDashboard && <DashboardGuide />}
             {isExplorer && <ExplorerGuide />}
             {!isDashboard && !isExplorer && (
