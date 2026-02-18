@@ -22,6 +22,11 @@ import {
   UserPlus,
   AlertTriangle,
   FileCheck,
+  Download,
+  Eye,
+  FileDown,
+  Filter,
+  CalendarDays,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -313,6 +318,146 @@ const ExplorerGuide = () => (
 );
 
 /* ─────────────────────────────────────────────
+   Activity guide content
+───────────────────────────────────────────── */
+const ActivityGuide = () => (
+  <div className="px-7 py-6 space-y-9">
+    {/* Intro */}
+    <section>
+      <SectionTitle>Introducción</SectionTitle>
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        El <span className="text-foreground font-medium">Panel de Actividad</span> es el registro de auditoría completo
+        del portal. Consolida en una sola vista todas las acciones realizadas por usuarios: descargas, subidas,
+        visualizaciones y comentarios, con fecha, hora y contexto del documento.
+      </p>
+    </section>
+
+    {/* Stats */}
+    <section>
+      <SectionTitle>Indicadores de Actividad</SectionTitle>
+      <div className="space-y-3">
+        {[
+          {
+            icon: History,
+            label: "Total Actividades",
+            desc: "Suma de todas las acciones registradas en el sistema, independientemente del tipo o usuario.",
+            iconBg: "bg-primary/10",
+            iconColor: "text-primary",
+          },
+          {
+            icon: Download,
+            label: "Descargas",
+            desc: "Número de veces que un usuario ha descargado un documento. Indica el nivel de consumo documental.",
+            iconBg: "bg-muted",
+            iconColor: "text-foreground",
+          },
+          {
+            icon: Upload,
+            label: "Subidas",
+            desc: "Documentos cargados al portal. Refleja el ritmo de publicación de contenido técnico.",
+            iconBg: "bg-muted",
+            iconColor: "text-foreground",
+          },
+          {
+            icon: MessageSquare,
+            label: "Comentarios",
+            desc: "Interacciones del foro técnico registradas como actividad. Mide el engagement en los proyectos.",
+            iconBg: "bg-muted",
+            iconColor: "text-foreground",
+          },
+        ].map((item) => (
+          <ActionCard key={item.label} {...item} />
+        ))}
+      </div>
+    </section>
+
+    {/* Tipos de acción */}
+    <section>
+      <SectionTitle>Tipos de Acción</SectionTitle>
+      <div className="space-y-3">
+        {[
+          {
+            icon: Download,
+            label: "Descarga",
+            desc: "Un usuario ha descargado un archivo del portal de forma segura.",
+            iconBg: "bg-primary/10",
+            iconColor: "text-primary",
+          },
+          {
+            icon: Upload,
+            label: "Subida",
+            desc: "Un administrador o editor ha publicado un nuevo documento en el explorador.",
+            iconBg: "bg-green-500/10",
+            iconColor: "text-green-500",
+          },
+          {
+            icon: Eye,
+            label: "Visualización",
+            desc: "El usuario abrió un documento para previsualizarlo sin descargarlo.",
+            iconBg: "bg-blue-500/10",
+            iconColor: "text-blue-400",
+          },
+          {
+            icon: MessageSquare,
+            label: "Comentario",
+            desc: "Se publicó una nota en el foro técnico de un proyecto o carpeta.",
+            iconBg: "bg-amber-500/10",
+            iconColor: "text-amber-400",
+          },
+        ].map((item) => (
+          <ActionCard key={item.label} {...item} />
+        ))}
+      </div>
+    </section>
+
+    {/* Filtros */}
+    <section>
+      <SectionTitle>Filtros y Búsqueda</SectionTitle>
+      <div className="space-y-3">
+        {[
+          {
+            icon: Filter,
+            label: "Filtros combinables",
+            desc: "Filtra simultáneamente por usuario, proyecto, tipo de acción o rango de fechas para aislar cualquier evento.",
+            iconBg: "bg-primary/10",
+            iconColor: "text-primary",
+          },
+          {
+            icon: CalendarDays,
+            label: "Rango de fechas",
+            desc: "Selecciona un período concreto (Desde / Hasta) para auditar la actividad en un intervalo específico.",
+            iconBg: "bg-muted",
+            iconColor: "text-foreground",
+          },
+        ].map((item) => (
+          <ActionCard key={item.label} {...item} />
+        ))}
+      </div>
+    </section>
+
+    {/* Exportar */}
+    <section>
+      <div className="p-4 rounded-xl bg-primary/5 border border-primary/15">
+        <div className="flex items-center gap-2 mb-2">
+          <FileDown className="w-4 h-4 text-primary" />
+          <p className="text-sm font-semibold text-primary">Exportar CSV</p>
+        </div>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Descarga el registro completo en formato CSV para análisis externo, auditorías o reportes a dirección.
+          El botón de exportación respeta los filtros activos en el momento de la descarga.
+        </p>
+      </div>
+    </section>
+
+    <div className="pt-2 pb-4 border-t border-border">
+      <p className="text-xs text-muted-foreground text-center">
+        Manual de Usuario · Panel de Actividad · Russula Platform v1.0
+      </p>
+    </div>
+  </div>
+);
+
+/* ─────────────────────────────────────────────
    Main component
 ───────────────────────────────────────────── */
 const HelpPanel = () => {
@@ -321,14 +466,23 @@ const HelpPanel = () => {
 
   const isDashboard = pathname === "/dashboard";
   const isExplorer = pathname.startsWith("/dashboard/explorer") || pathname.startsWith("/dashboard/document");
+  const isActivity = pathname.startsWith("/dashboard/activity");
 
-  const title = isDashboard ? "Guía del Dashboard" : isExplorer ? "Explorador de documentos" : "Manual de Usuario";
+  const title = isDashboard
+    ? "Guía del Dashboard"
+    : isExplorer
+      ? "Explorador de documentos"
+      : isActivity
+        ? "Panel de Actividad"
+        : "Manual de Usuario";
 
   const subtitle = isDashboard
     ? "Métricas y análisis"
     : isExplorer
       ? "Navegación y Gestión Documental"
-      : "Ayuda contextual";
+      : isActivity
+        ? "Registro de auditoría y trazabilidad"
+        : "Ayuda contextual";
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -357,7 +511,8 @@ const HelpPanel = () => {
           <div key={pathname} className="animate-fade-in">
             {isDashboard && <DashboardGuide />}
             {isExplorer && <ExplorerGuide />}
-            {!isDashboard && !isExplorer && (
+            {isActivity && <ActivityGuide />}
+            {!isDashboard && !isExplorer && !isActivity && (
               <div className="px-7 py-6 text-sm text-muted-foreground">
                 Navega a una sección del portal para ver la ayuda contextual correspondiente.
               </div>
