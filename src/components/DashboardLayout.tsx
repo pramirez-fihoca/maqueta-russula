@@ -3,10 +3,11 @@ import russulaLogo from "@/assets/russula-logo.png";
 import russulaLogoLight from "@/assets/russula-logo-light.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation, Link } from "react-router-dom";
-import { FolderOpen, Activity, Users, Settings, LogOut, Menu, X, LayoutDashboard, Sun, Moon } from "lucide-react";
+import { FolderOpen, Activity, Users, LogOut, Menu, X, LayoutDashboard, Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import HelpPanel from "@/components/HelpPanel";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -57,6 +58,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
+          <HelpPanel />
           <div className="text-right hidden sm:block">
             <p className="text-sm font-medium text-foreground">{user!.name}</p>
             <p className="text-xs text-muted-foreground">{roleLabel}</p>
