@@ -449,8 +449,8 @@ const ActivityGuide = () => (
           <p className="text-sm font-semibold text-primary">Exportar CSV</p>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Descarga el registro completo en formato CSV para análisis externo, auditorías o reportes a dirección.
-          El botón de exportación respeta los filtros activos en el momento de la descarga.
+          Descarga el registro completo en formato CSV para análisis externo, auditorías o reportes a dirección. El
+          botón de exportación respeta los filtros activos en el momento de la descarga.
         </p>
       </div>
     </section>
@@ -506,7 +506,7 @@ const UsersGuide = () => (
               <HardHat className="w-5 h-5 text-foreground" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">Ingeniero Russula</p>
+              <p className="text-sm font-semibold text-foreground">Responsable Russula</p>
               <p className="text-xs text-muted-foreground font-medium">Perfil operativo técnico</p>
             </div>
           </div>
