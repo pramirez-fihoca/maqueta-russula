@@ -27,6 +27,12 @@ import {
   FileDown,
   Filter,
   CalendarDays,
+  ShieldAlert,
+  HardHat,
+  User,
+  Key,
+  ArrowRight,
+  FolderOpen,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -458,6 +464,132 @@ const ActivityGuide = () => (
 );
 
 /* ─────────────────────────────────────────────
+   Users guide content
+───────────────────────────────────────────── */
+const UsersGuide = () => (
+  <div className="px-7 py-6 space-y-9">
+    {/* Intro */}
+    <section>
+      <SectionTitle>Gestión de Accesos y Seguridad</SectionTitle>
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        El portal de Russula implementa un modelo de permisos basado en{" "}
+        <span className="text-foreground font-medium">tres perfiles</span> que definen qué puede ver y hacer cada
+        usuario. Asigna el perfil correcto para garantizar la seguridad documental y la trazabilidad de accesos.
+      </p>
+    </section>
+
+    {/* Perfiles */}
+    <section>
+      <SectionTitle>Perfiles de Usuario</SectionTitle>
+      <div className="space-y-3">
+        {/* Admin */}
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <ShieldAlert className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Administrador Russula</p>
+              <p className="text-xs text-primary font-medium">Control total del sistema</p>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Acceso irrestricto a todos los módulos. Gestiona clientes, crea y elimina proyectos, administra todos los
+            usuarios y puede auditar cualquier actividad del portal.
+          </p>
+        </div>
+
+        {/* Responsable */}
+        <div className="rounded-xl border border-border bg-card/50 p-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+              <HardHat className="w-5 h-5 text-foreground" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Ingeniero Russula</p>
+              <p className="text-xs text-muted-foreground font-medium">Perfil operativo técnico</p>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Puede subir planos y documentos, crear carpetas y participar en el Foro Técnico de cualquier proyecto. No
+            puede crear clientes ni eliminar usuarios de otros perfiles.
+          </p>
+        </div>
+
+        {/* Cliente */}
+        <div className="rounded-xl border border-border bg-card/50 p-4">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+              <User className="w-5 h-5 text-foreground" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Cliente Externo</p>
+              <p className="text-xs text-muted-foreground font-medium">Acceso restringido por invitación</p>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Solo puede visualizar y descargar documentación de los proyectos a los que ha sido invitado explícitamente.
+            No tiene acceso a otros clientes ni proyectos.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {/* Acciones de gestión */}
+    <section>
+      <SectionTitle>Guía de Acciones</SectionTitle>
+      <div className="space-y-3">
+        <ActionCard
+          icon={UserPlus}
+          label="Dar de alta un colaborador"
+          desc="Introduce el email, selecciona el perfil y vincula al usuario con los proyectos o empresas correspondientes. Recibirá un email de activación automático."
+          iconBg="bg-primary/10"
+          iconColor="text-primary"
+        />
+        <ActionCard
+          icon={Key}
+          label="Reseteo de contraseña / Active Directory"
+          desc="Puedes resetear la contraseña manualmente desde el panel de usuario. Si la infraestructura lo permite, la vinculación con Active Directory elimina la gestión de credenciales propias."
+          iconBg="bg-muted"
+          iconColor="text-foreground"
+        />
+      </div>
+    </section>
+
+    {/* Flujo de acceso */}
+    <section>
+      <SectionTitle>Flujo de Acceso</SectionTitle>
+      <div className="p-4 rounded-xl bg-primary/5 border border-primary/15">
+        <p className="text-xs text-muted-foreground mb-3">De la invitación al documento en tres pasos:</p>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {[
+            { icon: UserPlus, label: "Usuario creado" },
+            { icon: Briefcase, label: "Asignado a Proyecto" },
+            { icon: FolderOpen, label: "Accede a Documentación" },
+          ].map((step, i, arr) => (
+            <div key={step.label} className="flex items-center gap-1.5">
+              <div className="flex flex-col items-center gap-1">
+                <div className="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center">
+                  <step.icon className="w-4 h-4 text-primary" />
+                </div>
+                <p className="text-[10px] text-muted-foreground text-center leading-tight w-14">{step.label}</p>
+              </div>
+              {i < arr.length - 1 && <ArrowRight className="w-3 h-3 text-primary/50 mb-3 flex-shrink-0" />}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <div className="pt-2 pb-4 border-t border-border">
+      <p className="text-xs text-muted-foreground text-center">
+        Manual de Usuario · Gestión de Accesos · Russula Platform v1.0
+      </p>
+    </div>
+  </div>
+);
+
+/* ─────────────────────────────────────────────
    Main component
 ───────────────────────────────────────────── */
 const HelpPanel = () => {
@@ -467,6 +599,7 @@ const HelpPanel = () => {
   const isDashboard = pathname === "/dashboard";
   const isExplorer = pathname.startsWith("/dashboard/explorer") || pathname.startsWith("/dashboard/document");
   const isActivity = pathname.startsWith("/dashboard/activity");
+  const isUsers = pathname.startsWith("/dashboard/users");
 
   const title = isDashboard
     ? "Guía del Dashboard"
@@ -474,7 +607,9 @@ const HelpPanel = () => {
       ? "Explorador de documentos"
       : isActivity
         ? "Panel de Actividad"
-        : "Manual de Usuario";
+        : isUsers
+          ? "Gestión de Accesos y Seguridad"
+          : "Manual de Usuario";
 
   const subtitle = isDashboard
     ? "Métricas y análisis"
@@ -482,7 +617,9 @@ const HelpPanel = () => {
       ? "Navegación y Gestión Documental"
       : isActivity
         ? "Registro de auditoría y trazabilidad"
-        : "Ayuda contextual";
+        : isUsers
+          ? "Perfiles, permisos y altas de usuario"
+          : "Ayuda contextual";
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -512,7 +649,8 @@ const HelpPanel = () => {
             {isDashboard && <DashboardGuide />}
             {isExplorer && <ExplorerGuide />}
             {isActivity && <ActivityGuide />}
-            {!isDashboard && !isExplorer && !isActivity && (
+            {isUsers && <UsersGuide />}
+            {!isDashboard && !isExplorer && !isActivity && !isUsers && (
               <div className="px-7 py-6 text-sm text-muted-foreground">
                 Navega a una sección del portal para ver la ayuda contextual correspondiente.
               </div>
