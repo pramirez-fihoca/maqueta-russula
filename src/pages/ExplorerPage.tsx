@@ -7,6 +7,7 @@ import {
   Download, Trash2, ArrowLeft, File, MessageSquare, Plus, Building2, Briefcase,
   Droplets, BarChart3, Globe, Send, Heart, Reply, MoreHorizontal
 } from 'lucide-react';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -44,15 +45,12 @@ const ExplorerPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Find the client associated with this user (for client role)
   const isClientRole = user?.role === 'client';
   const userClient = isClientRole ? CLIENTS.find(c => c.name === user?.company) : null;
 
   const [breadcrumb, setBreadcrumb] = useState<BreadcrumbItem[]>(() => {
     if (isClientRole && userClient) {
-      return [
-        { id: userClient.id, name: 'Proyectos', type: 'client' }
-      ];
+      return [{ id: userClient.id, name: 'Proyectos', type: 'client' }];
     }
     return [{ id: 'root', name: 'Clientes', type: 'root' }];
   });
@@ -85,7 +83,6 @@ const ExplorerPage = () => {
     setBreadcrumb([...breadcrumb, item]);
   };
 
-  // Determine content based on current level
   let folders: { id: string; name: string; type: 'client' | 'project' | 'folder'; date: string; projectType?: ProjectType; description?: string; projectCount?: number }[] = [];
   let documents: typeof DOCUMENTS = [];
 
@@ -146,7 +143,6 @@ const ExplorerPage = () => {
     documents = DOCUMENTS.filter(d => d.folderId === currentLevel.id);
   }
 
-  // Search filter
   if (search) {
     const q = search.toLowerCase();
     folders = folders.filter(f => f.name.toLowerCase().includes(q));
@@ -168,6 +164,240 @@ const ExplorerPage = () => {
     if (name.endsWith('.xlsx') || name.endsWith('.xls')) return <div className="w-5 h-5 rounded flex items-center justify-center"><span className="text-file-xls text-[10px] font-bold">XLS</span></div>;
     if (name.endsWith('.zip')) return <div className="w-5 h-5 rounded flex items-center justify-center"><span className="text-file-zip text-[10px] font-bold">ZIP</span></div>;
     return <File className="w-4 h-4 text-muted-foreground" />;
+  };
+
+  const projectBreadcrumb = breadcrumb.find(b => b.type === 'project');
+  const showComments = (currentLevel.type === 'project' || currentLevel.type === 'folder') && !!projectBreadcrumb || currentLevel.type === 'project';
+
+  // Shared folder/document list content
+  const FolderContent = () => (
+    <>
+      {breadcrumb.length > 1 && (
+        <button
+          onClick={() => setBreadcrumb(breadcrumb.slice(0, -1))}
+          className="flex items-center gap-2 px-3 py-2 mb-4 rounded-lg hover:bg-secondary transition-colors text-muted-foreground text-sm"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Volver
+        </button>
+      )}
+
+      {/* Card grid for clients and projects */}
+      {(currentLevel.type === 'root' || currentLevel.type === 'client') && folders.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {folders.map(folder => (
+            <button
+              key={folder.id}
+              onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
+              className="group relative flex flex-col gap-3 p-5 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200 text-left"
+            >
+              <div className="flex items-start justify-between">
+                <div className={cn(
+                  "w-10 h-10 rounded-lg flex items-center justify-center",
+                  folder.type === 'client' ? "bg-primary/10" :
+                  folder.projectType === 'water-solutions' ? "bg-blue-500/10" :
+                  folder.projectType === 'digitalization' ? "bg-emerald-500/10" :
+                  "bg-orange-500/10"
+                )}>
+                  {folder.type === 'client' ? (
+                    <Building2 className="w-5 h-5 text-primary" />
+                  ) : folder.projectType === 'water-solutions' ? (
+                    <Droplets className="w-5 h-5 text-blue-500" />
+                  ) : folder.projectType === 'digitalization' ? (
+                    <Globe className="w-5 h-5 text-emerald-500" />
+                  ) : (
+                    <BarChart3 className="w-5 h-5 text-orange-500" />
+                  )}
+                </div>
+                {folder.type === 'project' && folder.projectType && (
+                  <span className={cn(
+                    "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full",
+                    folder.projectType === 'water-solutions' ? "bg-blue-500/10 text-blue-500" :
+                    folder.projectType === 'digitalization' ? "bg-emerald-500/10 text-emerald-500" :
+                    "bg-orange-500/10 text-orange-500"
+                  )}>
+                    {PROJECT_TYPES.find(pt => pt.value === folder.projectType)?.label}
+                  </span>
+                )}
+                {canDelete && folder.type === 'client' && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -mr-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setLocalClients(localClients.filter(c => c.id !== folder.id));
+                      toast.success(`Cliente "${folder.name}" eliminado`);
+                    }}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{folder.name}</p>
+                {folder.description && (
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{folder.description}</p>
+                )}
+              </div>
+              <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
+                <span className="text-[11px] text-muted-foreground">{folder.date}</span>
+                {folder.type === 'client' && folder.projectCount !== undefined && (
+                  <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                    <Briefcase className="w-3 h-3" />
+                    {folder.projectCount} {folder.projectCount === 1 ? 'proyecto' : 'proyectos'}
+                  </span>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Windows Explorer-style table for folders and documents inside projects */}
+      {(currentLevel.type === 'project' || currentLevel.type === 'folder') && (folders.length > 0 || documents.length > 0) && (
+        <div className="border border-border rounded-lg overflow-hidden bg-card">
+          <div className="grid grid-cols-[1fr_180px_200px_100px] gap-0 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <div className="px-4 py-2.5">Nombre</div>
+            <div className="px-4 py-2.5">Fecha de modificación</div>
+            <div className="px-4 py-2.5">Tipo</div>
+            <div className="px-4 py-2.5 text-right">Tamaño</div>
+          </div>
+
+          {folders.map(folder => (
+            <button
+              key={folder.id}
+              onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
+              className="w-full grid grid-cols-[1fr_180px_200px_100px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0"
+            >
+              <div className="px-4 py-2.5 flex items-center gap-2.5 text-left">
+                <Folder className="w-4 h-4 text-amber-500 shrink-0" />
+                <span className="text-sm text-foreground group-hover:text-primary transition-colors truncate">{folder.name}</span>
+              </div>
+              <div className="px-4 py-2.5 text-sm text-muted-foreground">{folder.date}</div>
+              <div className="px-4 py-2.5 text-sm text-muted-foreground">Carpeta de archivos</div>
+              <div className="px-4 py-2.5 text-sm text-muted-foreground text-right">—</div>
+            </button>
+          ))}
+
+          {documents.map(doc => (
+            <div
+              key={doc.id}
+              className="w-full grid grid-cols-[1fr_180px_200px_100px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0"
+            >
+              <button
+                onClick={() => navigate(`/dashboard/document/${doc.id}`)}
+                className="px-4 py-2.5 flex items-center gap-2.5 text-left"
+              >
+                {getFileTypeIcon(doc.name)}
+                <span className="text-sm text-foreground group-hover:text-primary transition-colors truncate">{doc.name}</span>
+              </button>
+              <div className="px-4 py-2.5 text-sm text-muted-foreground">{doc.uploadedAt}</div>
+              <div className="px-4 py-2.5 text-sm text-muted-foreground">{getFileTypeLabel(doc.name)}</div>
+              <div className="px-4 py-2.5 text-sm text-muted-foreground text-right">{formatFileSize(doc.size)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {folders.length === 0 && documents.length === 0 && (
+        <div className="text-center py-16 text-muted-foreground">
+          <FolderPlus className="w-12 h-12 mx-auto mb-3 opacity-30" />
+          <p>No hay contenido en esta carpeta</p>
+        </div>
+      )}
+    </>
+  );
+
+  // Comments panel content
+  const CommentsPanel = () => {
+    const projectId = currentLevel.type === 'project' ? currentLevel.id : projectBreadcrumb!.id;
+    const projectComments = comments.filter(c => c.projectId === projectId);
+    const rootComments = projectComments.filter(c => !c.parentId);
+
+    const handleAddComment = () => {
+      if (!newComment.trim() || !user) return;
+      const comment = {
+        id: `cm-new-${Date.now()}`,
+        projectId,
+        userId: user.id,
+        parentId: null,
+        text: newComment,
+        createdAt: new Date().toISOString(),
+        likes: 0,
+      };
+      setComments([...comments, comment]);
+      setNewComment('');
+      toast.success('Comentario agregado');
+    };
+
+    const renderComment = (comment: typeof COMMENTS[0], depth = 0) => {
+      const author = USERS.find(u => u.id === comment.userId);
+      const replies = projectComments.filter(c => c.parentId === comment.id);
+      return (
+        <div key={comment.id} className={`${depth > 0 ? 'ml-6 border-l-2 border-border pl-3' : ''}`}>
+          <div className="py-2.5">
+            <div className="flex items-start gap-2.5">
+              <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-semibold flex-shrink-0">
+                {author?.name.charAt(0) || '?'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-xs font-semibold text-foreground">{author?.name}</span>
+                  <span className="text-[10px] text-muted-foreground">{new Date(comment.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
+                </div>
+                <p className="text-xs text-foreground/90 leading-relaxed">{comment.text}</p>
+                <div className="flex items-center gap-3 mt-1.5">
+                  <button className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors">
+                    <Reply className="w-3 h-3" />
+                    Responder
+                  </button>
+                  <button className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors">
+                    <Heart className="w-3 h-3" />
+                    {comment.likes > 0 && comment.likes}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {replies.map(r => renderComment(r, depth + 1))}
+        </div>
+      );
+    };
+
+    return (
+      <div className="bg-card border border-border rounded-xl overflow-hidden flex flex-col h-full">
+        <div className="p-3 border-b border-border">
+          <h3 className="font-heading font-bold text-sm text-foreground flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-primary" />
+            Comentarios ({projectComments.length})
+          </h3>
+        </div>
+        <div className="flex-1 overflow-auto p-3 divide-y divide-border">
+          {rootComments.length > 0 ? (
+            rootComments.map(c => renderComment(c))
+          ) : (
+            <div className="text-center py-6 text-muted-foreground text-xs">
+              No hay comentarios aún
+            </div>
+          )}
+        </div>
+        <div className="p-3 border-t border-border">
+          <div className="flex gap-2">
+            <Textarea
+              placeholder="Escribe un comentario..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              className="bg-secondary border-border text-foreground placeholder:text-muted-foreground resize-none min-h-[50px] text-xs"
+              rows={2}
+            />
+            <Button onClick={handleAddComment} className="russula-gradient text-primary-foreground hover:opacity-90 self-end" size="icon">
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -237,250 +467,25 @@ const ExplorerPage = () => {
       </div>
 
       {/* Content + Comments layout */}
-      {(() => {
-        const projectBreadcrumb = breadcrumb.find(b => b.type === 'project');
-        const showComments = (currentLevel.type === 'project' || currentLevel.type === 'folder') && !!projectBreadcrumb || currentLevel.type === 'project';
-        return (
-          <div className={cn("flex gap-6", showComments && "items-start")}>
-          <div className="flex-1 min-w-0">
-        {/* Back button */}
-        {breadcrumb.length > 1 && (
-          <button
-            onClick={() => setBreadcrumb(breadcrumb.slice(0, -1))}
-            className="flex items-center gap-2 px-3 py-2 mb-4 rounded-lg hover:bg-secondary transition-colors text-muted-foreground text-sm"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver
-          </button>
-        )}
-
-        {/* Card grid for clients and projects */}
-        {(currentLevel.type === 'root' || currentLevel.type === 'client') && folders.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {folders.map(folder => (
-              <button
-                key={folder.id}
-                onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
-                className="group relative flex flex-col gap-3 p-5 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200 text-left"
-              >
-                {/* Icon + Type badge */}
-                <div className="flex items-start justify-between">
-                  <div className={cn(
-                    "w-10 h-10 rounded-lg flex items-center justify-center",
-                    folder.type === 'client' ? "bg-primary/10" :
-                    folder.projectType === 'water-solutions' ? "bg-blue-500/10" :
-                    folder.projectType === 'digitalization' ? "bg-emerald-500/10" :
-                    "bg-orange-500/10"
-                  )}>
-                    {folder.type === 'client' ? (
-                      <Building2 className="w-5 h-5 text-primary" />
-                    ) : folder.projectType === 'water-solutions' ? (
-                      <Droplets className="w-5 h-5 text-blue-500" />
-                    ) : folder.projectType === 'digitalization' ? (
-                      <Globe className="w-5 h-5 text-emerald-500" />
-                    ) : (
-                      <BarChart3 className="w-5 h-5 text-orange-500" />
-                    )}
-                  </div>
-                  {folder.type === 'project' && folder.projectType && (
-                    <span className={cn(
-                      "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full",
-                      folder.projectType === 'water-solutions' ? "bg-blue-500/10 text-blue-500" :
-                      folder.projectType === 'digitalization' ? "bg-emerald-500/10 text-emerald-500" :
-                      "bg-orange-500/10 text-orange-500"
-                    )}>
-                      {PROJECT_TYPES.find(pt => pt.value === folder.projectType)?.label}
-                    </span>
-                  )}
-                  {canDelete && folder.type === 'client' && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -mr-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLocalClients(localClients.filter(c => c.id !== folder.id));
-                        toast.success(`Cliente "${folder.name}" eliminado`);
-                      }}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  )}
-                </div>
-
-                {/* Name */}
-                <div>
-                  <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{folder.name}</p>
-                  {folder.description && (
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{folder.description}</p>
-                  )}
-                </div>
-
-                {/* Footer */}
-                <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
-                  <span className="text-[11px] text-muted-foreground">{folder.date}</span>
-                  {folder.type === 'client' && folder.projectCount !== undefined && (
-                    <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                      <Briefcase className="w-3 h-3" />
-                      {folder.projectCount} {folder.projectCount === 1 ? 'proyecto' : 'proyectos'}
-                    </span>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Windows Explorer-style table for folders and documents inside projects */}
-        {(currentLevel.type === 'project' || currentLevel.type === 'folder') && (folders.length > 0 || documents.length > 0) && (
-          <div className="border border-border rounded-lg overflow-hidden bg-card">
-            {/* Table header */}
-            <div className="grid grid-cols-[1fr_180px_200px_100px] gap-0 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              <div className="px-4 py-2.5">Nombre</div>
-              <div className="px-4 py-2.5">Fecha de modificación</div>
-              <div className="px-4 py-2.5">Tipo</div>
-              <div className="px-4 py-2.5 text-right">Tamaño</div>
+      {showComments ? (
+        <ResizablePanelGroup direction="horizontal" className="min-h-[400px]">
+          <ResizablePanel defaultSize={65} minSize={30}>
+            <div className="h-full pr-2 overflow-auto">
+              <FolderContent />
             </div>
+          </ResizablePanel>
 
-            {/* Folder rows */}
-            {folders.map(folder => (
-              <button
-                key={folder.id}
-                onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
-                className="w-full grid grid-cols-[1fr_180px_200px_100px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0"
-              >
-                <div className="px-4 py-2.5 flex items-center gap-2.5 text-left">
-                  <Folder className="w-4 h-4 text-amber-500 shrink-0" />
-                  <span className="text-sm text-foreground group-hover:text-primary transition-colors truncate">{folder.name}</span>
-                </div>
-                <div className="px-4 py-2.5 text-sm text-muted-foreground">{folder.date}</div>
-                <div className="px-4 py-2.5 text-sm text-muted-foreground">Carpeta de archivos</div>
-                <div className="px-4 py-2.5 text-sm text-muted-foreground text-right">—</div>
-              </button>
-            ))}
+          <ResizableHandle withHandle className="mx-1" />
 
-            {/* Document rows */}
-            {documents.map(doc => (
-              <div
-                key={doc.id}
-                className="w-full grid grid-cols-[1fr_180px_200px_100px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0"
-              >
-                <button
-                  onClick={() => navigate(`/dashboard/document/${doc.id}`)}
-                  className="px-4 py-2.5 flex items-center gap-2.5 text-left"
-                >
-                  {getFileTypeIcon(doc.name)}
-                  <span className="text-sm text-foreground group-hover:text-primary transition-colors truncate">{doc.name}</span>
-                </button>
-                <div className="px-4 py-2.5 text-sm text-muted-foreground">{doc.uploadedAt}</div>
-                <div className="px-4 py-2.5 text-sm text-muted-foreground">{getFileTypeLabel(doc.name)}</div>
-                <div className="px-4 py-2.5 text-sm text-muted-foreground text-right">{formatFileSize(doc.size)}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {folders.length === 0 && documents.length === 0 && (
-          <div className="text-center py-16 text-muted-foreground">
-            <FolderPlus className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>No hay contenido en esta carpeta</p>
-          </div>
-        )}
-          </div>
-
-          {/* Comments panel on the right for folder level */}
-          {showComments && (() => {
-            const projectId = currentLevel.type === 'project' ? currentLevel.id : projectBreadcrumb!.id;
-            const projectComments = comments.filter(c => c.projectId === projectId);
-            const rootComments = projectComments.filter(c => !c.parentId);
-
-            const handleAddComment = () => {
-              if (!newComment.trim() || !user) return;
-              const comment = {
-                id: `cm-new-${Date.now()}`,
-                projectId,
-                userId: user.id,
-                parentId: null,
-                text: newComment,
-                createdAt: new Date().toISOString(),
-                likes: 0,
-              };
-              setComments([...comments, comment]);
-              setNewComment('');
-              toast.success('Comentario agregado');
-            };
-
-            const renderComment = (comment: typeof COMMENTS[0], depth = 0) => {
-              const author = USERS.find(u => u.id === comment.userId);
-              const replies = projectComments.filter(c => c.parentId === comment.id);
-              return (
-                <div key={comment.id} className={`${depth > 0 ? 'ml-6 border-l-2 border-border pl-3' : ''}`}>
-                  <div className="py-2.5">
-                    <div className="flex items-start gap-2.5">
-                      <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-semibold flex-shrink-0">
-                        {author?.name.charAt(0) || '?'}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-xs font-semibold text-foreground">{author?.name}</span>
-                          <span className="text-[10px] text-muted-foreground">{new Date(comment.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
-                        </div>
-                        <p className="text-xs text-foreground/90 leading-relaxed">{comment.text}</p>
-                        <div className="flex items-center gap-3 mt-1.5">
-                          <button className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors">
-                            <Reply className="w-3 h-3" />
-                            Responder
-                          </button>
-                          <button className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors">
-                            <Heart className="w-3 h-3" />
-                            {comment.likes > 0 && comment.likes}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {replies.map(r => renderComment(r, depth + 1))}
-                </div>
-              );
-            };
-
-            return (
-              <div className="w-96 flex-shrink-0 bg-card border border-border rounded-xl overflow-hidden self-start sticky top-6">
-                <div className="p-3 border-b border-border">
-                  <h3 className="font-heading font-bold text-sm text-foreground flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-primary" />
-                    Comentarios ({projectComments.length})
-                  </h3>
-                </div>
-                <div className="max-h-[400px] overflow-auto p-3 divide-y divide-border">
-                  {rootComments.length > 0 ? (
-                    rootComments.map(c => renderComment(c))
-                  ) : (
-                    <div className="text-center py-6 text-muted-foreground text-xs">
-                      No hay comentarios aún
-                    </div>
-                  )}
-                </div>
-                <div className="p-3 border-t border-border">
-                  <div className="flex gap-2">
-                    <Textarea
-                      placeholder="Escribe un comentario..."
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      className="bg-secondary border-border text-foreground placeholder:text-muted-foreground resize-none min-h-[50px] text-xs"
-                      rows={2}
-                    />
-                    <Button onClick={handleAddComment} className="russula-gradient text-primary-foreground hover:opacity-90 self-end" size="icon">
-                      <Send className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
-          </div>
-        );
-      })()}
+          <ResizablePanel defaultSize={35} minSize={20}>
+            <div className="h-full pl-2">
+              <CommentsPanel />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        <FolderContent />
+      )}
 
       {/* Dialog Nuevo Cliente */}
       <Dialog open={showNewClient} onOpenChange={setShowNewClient}>
