@@ -172,6 +172,17 @@ export const DOCUMENTS: Document[] = [
   { id: 'd10', folderId: 'f9', name: 'PLC-Program-Furnace-v1.0.zip', type: 'application/zip', size: 25000000, uploadedBy: 'u2', uploadedAt: '2024-08-15' },
   { id: 'd11', folderId: 'f10', name: 'Meltshop-Project-Plan.pdf', type: 'application/pdf', size: 2100000, uploadedBy: 'u1', uploadedAt: '2024-08-10' },
   { id: 'd12', folderId: 'f11', name: 'Emissions-Assessment-2024.pdf', type: 'application/pdf', size: 3400000, uploadedBy: 'u6', uploadedAt: '2024-10-01' },
+  // Documentos subidos por clientes externos
+  { id: 'd13', folderId: 'f2', name: 'Nucor-Site-Conditions-Report.pdf', type: 'application/pdf', size: 1850000, uploadedBy: 'u3', uploadedAt: '2024-03-20' },
+  { id: 'd14', folderId: 'f3', name: 'Nucor-Foundation-Drawings-Rev1.dwg', type: 'application/dwg', size: 6700000, uploadedBy: 'u3', uploadedAt: '2024-04-02' },
+  { id: 'd15', folderId: 'f5', name: 'Celsa-Mill-Stand-Inspection.pdf', type: 'application/pdf', size: 2900000, uploadedBy: 'u4', uploadedAt: '2024-05-10' },
+  { id: 'd16', folderId: 'f6', name: 'Celsa-Quality-Cert-Acero-Q2.xlsx', type: 'application/xlsx', size: 520000, uploadedBy: 'u4', uploadedAt: '2024-07-15' },
+  { id: 'd17', folderId: 'f7', name: 'BigRiver-Water-Analysis-Lab.pdf', type: 'application/pdf', size: 1400000, uploadedBy: 'u7', uploadedAt: '2024-06-20' },
+  { id: 'd18', folderId: 'f8', name: 'BigRiver-Existing-PID-Diagrams.pdf', type: 'application/pdf', size: 4800000, uploadedBy: 'u7', uploadedAt: '2024-07-05' },
+  { id: 'd19', folderId: 'f10', name: 'Novelis-Cooling-Requirements.pdf', type: 'application/pdf', size: 2200000, uploadedBy: 'u8', uploadedAt: '2024-08-20' },
+  { id: 'd20', folderId: 'f10', name: 'Novelis-Plant-Layout-Existing.dwg', type: 'application/dwg', size: 9500000, uploadedBy: 'u8', uploadedAt: '2024-09-01' },
+  { id: 'd21', folderId: 'f11', name: 'Gerdau-Environmental-Baseline.pdf', type: 'application/pdf', size: 3100000, uploadedBy: 'u5', uploadedAt: '2024-09-25' },
+  { id: 'd22', folderId: 'f9', name: 'Nucor-PLC-IO-List-Furnace.xlsx', type: 'application/xlsx', size: 780000, uploadedBy: 'u3', uploadedAt: '2024-08-28' },
 ];
 
 export const COMMENTS: Comment[] = [
