@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { DOWNLOAD_RECORDS, DOCUMENTS, USERS, FOLDERS, PROJECTS, CLIENTS, COMMENTS } from '@/data/mockData';
 import { Download, FileDown, Search, Upload, Eye, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -19,6 +20,7 @@ interface ActivityRecord {
 const ITEMS_PER_PAGE = 10;
 
 const ActivityPage = () => {
+  const { user: authUser } = useAuth();
   const [filterUser, setFilterUser] = useState('all');
   const [filterProject, setFilterProject] = useState('all');
   const [filterAction, setFilterAction] = useState('all');
@@ -26,6 +28,16 @@ const ActivityPage = () => {
   const [filterDateTo, setFilterDateTo] = useState('');
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Determine which client IDs this user can see
+  const visibleClientIds = useMemo(() => {
+    if (!authUser) return [];
+    if (authUser.role === 'admin') return null; // null = all
+    if (authUser.role === 'editor') return authUser.assignedClients || [];
+    // client: find the client matching their company
+    const userClient = CLIENTS.find(c => c.name === authUser.company);
+    return userClient ? [userClient.id] : [];
+  }, [authUser]);
 
   // Build unified activity records from all sources
   const allRecords: ActivityRecord[] = useMemo(() => {
@@ -77,7 +89,19 @@ const ActivityPage = () => {
     return { ...record, doc, user, project, client };
   }), [allRecords]);
 
-  let filtered = enriched;
+  // Filter by role visibility first
+  const roleFiltered = useMemo(() => {
+    if (visibleClientIds === null) return enriched; // admin sees all
+    return enriched.filter(r => r.client && visibleClientIds.includes(r.client.id));
+  }, [enriched, visibleClientIds]);
+
+  // Visible projects for the filter dropdown
+  const visibleProjects = useMemo(() => {
+    if (visibleClientIds === null) return PROJECTS;
+    return PROJECTS.filter(p => visibleClientIds.includes(p.clientId));
+  }, [visibleClientIds]);
+
+  let filtered = roleFiltered;
   if (filterUser !== 'all') filtered = filtered.filter(r => r.userId === filterUser);
   if (filterProject !== 'all') filtered = filtered.filter(r => r.project?.id === filterProject);
   if (filterAction !== 'all') filtered = filtered.filter(r => r.action === filterAction);
@@ -98,10 +122,10 @@ const ActivityPage = () => {
   const uniqueUsers = [...new Map(USERS.map(u => [u.id, u])).values()];
 
   // Stats
-  const totalActions = allRecords.length;
-  const totalDownloads = allRecords.filter(r => r.action === 'download').length;
-  const totalUploads = allRecords.filter(r => r.action === 'upload').length;
-  const totalComments = allRecords.filter(r => r.action === 'comment').length;
+  const totalActions = roleFiltered.length;
+  const totalDownloads = roleFiltered.filter(r => r.action === 'download').length;
+  const totalUploads = roleFiltered.filter(r => r.action === 'upload').length;
+  const totalComments = roleFiltered.filter(r => r.action === 'comment').length;
 
   const actionConfig: Record<ActionType, { label: string; icon: typeof Download; colorClass: string }> = {
     download: { label: 'Descarga', icon: Download, colorClass: 'bg-primary/10 text-primary' },
@@ -164,7 +188,7 @@ const ActivityPage = () => {
           </SelectTrigger>
           <SelectContent className="bg-card border-border">
             <SelectItem value="all">Todos los proyectos</SelectItem>
-            {PROJECTS.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+            {visibleProjects.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filterAction} onValueChange={resetPage(setFilterAction)}>
