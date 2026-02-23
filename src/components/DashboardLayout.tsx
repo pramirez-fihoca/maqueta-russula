@@ -16,7 +16,7 @@ interface DashboardLayoutProps {
 const navItems = [
 { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard", roles: ["admin", "editor"] },
 { label: "Explorador", icon: FolderOpen, path: "/dashboard/explorer", roles: ["admin", "editor", "client"] },
-{ label: "Actividad", icon: Activity, path: "/dashboard/activity", roles: ["admin"] },
+{ label: "Actividad", icon: Activity, path: "/dashboard/activity", roles: ["admin", "editor", "client"] },
 { label: "Usuarios", icon: Users, path: "/dashboard/users", roles: ["admin", "editor"] }
 //{ label: 'Configuración', icon: Settings, path: '/dashboard/settings', roles: ['admin', 'editor', 'client'] },
 ];
