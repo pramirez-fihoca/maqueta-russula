@@ -5,7 +5,7 @@ import { CLIENTS, PROJECTS, FOLDERS, DOCUMENTS, COMMENTS, USERS, formatFileSize,
 import {
   Folder, FileText, ChevronRight, Upload, FolderPlus, Search,
   Download, Trash2, ArrowLeft, File, MessageSquare, Plus, Building2, Briefcase,
-  Droplets, BarChart3, Globe, Send, Heart, Reply, MoreHorizontal, Archive } from
+  Droplets, BarChart3, Globe, Send, Heart, Reply, MoreHorizontal, Archive, FileArchive } from
 'lucide-react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Input } from '@/components/ui/input';
@@ -319,6 +319,33 @@ const ExplorerPage = () => {
                     {folder.projectCount} {folder.projectCount === 1 ? 'proyecto' : 'proyectos'}
                   </span>
           }
+                {folder.type === 'project' && folder.projectStatus === 'archived' &&
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-[11px] text-muted-foreground hover:text-primary gap-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const projectDocs = DOCUMENTS.filter(d => {
+                        const f = FOLDERS.find(fl => fl.id === d.folderId);
+                        return f?.projectId === folder.id;
+                      });
+                      const totalSize = projectDocs.reduce((acc, d) => acc + d.size, 0);
+                      const isLarge = totalSize > 50 * 1024 * 1024;
+                      toast.info('Generando archivo comprimido...');
+                      if (isLarge) {
+                        setTimeout(() => {
+                          toast.warning('Esta operación puede tardar unos minutos debido al volumen de planos y vídeos');
+                        }, 800);
+                      }
+                      setTimeout(() => {
+                        toast.success(`Descarga iniciada: ${folder.name}.zip`);
+                      }, isLarge ? 2000 : 1200);
+                    }}>
+                    <FileArchive className="w-3.5 h-3.5" />
+                    Descargar ZIP
+                  </Button>
+                }
               </div>
             </button>
             );
