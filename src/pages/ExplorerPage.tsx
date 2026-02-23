@@ -71,7 +71,7 @@ const ExplorerPage = () => {
   const currentLevel = breadcrumb[breadcrumb.length - 1];
   const isAdmin = user?.role === 'admin';
   const isEditor = user?.role === 'editor';
-  const canUpload = isAdmin || isEditor;
+  const canUpload = isAdmin || isEditor || isClientRole;
   const canDelete = isAdmin;
 
   const navigateTo = (item: BreadcrumbItem) => {
@@ -299,7 +299,7 @@ const ExplorerPage = () => {
               <div className="px-4 py-2.5 text-sm text-muted-foreground">{doc.uploadedAt}</div>
               <div className="px-4 py-2.5 text-sm text-muted-foreground">{getFileTypeLabel(doc.name)}</div>
               <div className="px-4 py-2.5 text-sm text-muted-foreground truncate">{USERS.find(u => u.id === doc.uploadedBy)?.name ?? '—'}</div>
-              <div className="px-4 py-2.5 text-sm text-muted-foreground truncate">{USERS.find(u => u.id === doc.uploadedBy)?.company ?? '—'}</div>
+              <div className={cn("px-4 py-2.5 text-sm truncate", USERS.find(u => u.id === doc.uploadedBy)?.company === 'Russula' ? 'text-primary font-medium' : 'text-muted-foreground')}>{USERS.find(u => u.id === doc.uploadedBy)?.company ?? '—'}</div>
               <div className="px-4 py-2.5 text-sm text-muted-foreground text-right">{formatFileSize(doc.size)}</div>
             </div>
       )}
