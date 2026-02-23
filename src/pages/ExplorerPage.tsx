@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { CLIENTS, PROJECTS, FOLDERS, DOCUMENTS, COMMENTS, USERS, formatFileSize, Client, Project, ProjectType } from '@/data/mockData';
+import { CLIENTS, PROJECTS, FOLDERS, DOCUMENTS, COMMENTS, USERS, formatFileSize, Client, Project, ProjectType, ProjectStatus } from '@/data/mockData';
 import {
   Folder, FileText, ChevronRight, Upload, FolderPlus, Search,
   Download, Trash2, ArrowLeft, File, MessageSquare, Plus, Building2, Briefcase,
-  Droplets, BarChart3, Globe, Send, Heart, Reply, MoreHorizontal } from
+  Droplets, BarChart3, Globe, Send, Heart, Reply, MoreHorizontal, Archive } from
 'lucide-react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,10 @@ import { toast } from 'sonner';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from
 '@/components/ui/dialog';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from
+'@/components/ui/alert-dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -67,6 +71,8 @@ const ExplorerPage = () => {
   const [localProjects, setLocalProjects] = useState<Project[]>(PROJECTS);
   const [comments, setComments] = useState(COMMENTS);
   const [newComment, setNewComment] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'active' | 'archived' | 'all'>('active');
+  const [archiveTarget, setArchiveTarget] = useState<string | null>(null);
 
   const currentLevel = breadcrumb[breadcrumb.length - 1];
   const isAdmin = user?.role === 'admin';
@@ -83,7 +89,7 @@ const ExplorerPage = () => {
     setBreadcrumb([...breadcrumb, item]);
   };
 
-  let folders: {id: string;name: string;type: 'client' | 'project' | 'folder';date: string;projectType?: ProjectType;description?: string;projectCount?: number;}[] = [];
+  let folders: {id: string;name: string;type: 'client' | 'project' | 'folder';date: string;projectType?: ProjectType;projectStatus?: ProjectStatus;description?: string;projectCount?: number;}[] = [];
   let documents: typeof DOCUMENTS = [];
 
   const handleCreateClient = () => {
@@ -111,6 +117,7 @@ const ExplorerPage = () => {
       name: newProjectName.trim(),
       description: '',
       type: newProjectType as ProjectType,
+      status: 'active',
       createdAt: format(newProjectDate, 'yyyy-MM-dd')
     };
     setLocalProjects([...localProjects, newProject]);
@@ -119,6 +126,14 @@ const ExplorerPage = () => {
     setNewProjectDate(undefined);
     setShowNewProject(false);
     toast.success(`Proyecto "${newProject.name}" creado correctamente`);
+  };
+
+  const handleArchiveProject = () => {
+    if (!archiveTarget) return;
+    setLocalProjects(localProjects.map(p => p.id === archiveTarget ? { ...p, status: 'archived' as ProjectStatus } : p));
+    const project = localProjects.find(p => p.id === archiveTarget);
+    setArchiveTarget(null);
+    toast.success(`Proyecto "${project?.name}" archivado correctamente`);
   };
 
   if (currentLevel.type === 'root') {
@@ -131,7 +146,15 @@ const ExplorerPage = () => {
       return { id: c.id, name: c.name, type: 'client' as const, date: c.createdAt, description: c.description, projectCount };
     });
   } else if (currentLevel.type === 'client') {
-    folders = localProjects.filter((p) => p.clientId === currentLevel.id).map((p) => ({ id: p.id, name: p.name, type: 'project' as const, date: p.createdAt, projectType: p.type, description: p.description }));
+    let clientProjects = localProjects.filter((p) => p.clientId === currentLevel.id);
+    // Apply status filter (admin only)
+    if (isAdmin && statusFilter !== 'all') {
+      clientProjects = clientProjects.filter(p => p.status === statusFilter);
+    } else if (!isAdmin) {
+      // Non-admin users only see active projects
+      clientProjects = clientProjects.filter(p => p.status === 'active');
+    }
+    folders = clientProjects.map((p) => ({ id: p.id, name: p.name, type: 'project' as const, date: p.createdAt, projectType: p.type, projectStatus: p.status, description: p.description }));
   } else if (currentLevel.type === 'project') {
     folders = FOLDERS.filter((f) => f.projectId === currentLevel.id && !f.parentId).map((f) => ({ id: f.id, name: f.name, type: 'folder' as const, date: f.createdAt }));
     documents = DOCUMENTS.filter((d) => {
@@ -169,6 +192,10 @@ const ExplorerPage = () => {
   const projectBreadcrumb = breadcrumb.find((b) => b.type === 'project');
   const showComments = (currentLevel.type === 'project' || currentLevel.type === 'folder') && !!projectBreadcrumb || currentLevel.type === 'project';
 
+  // Check if current project is archived
+  const currentProjectData = currentLevel.type === 'project' ? localProjects.find(p => p.id === currentLevel.id) : null;
+  const isCurrentProjectArchived = currentProjectData?.status === 'archived';
+
   // Shared folder/document list content
   const FolderContent = () =>
   <>
@@ -185,15 +212,23 @@ const ExplorerPage = () => {
       {/* Card grid for clients and projects */}
       {(currentLevel.type === 'root' || currentLevel.type === 'client') && folders.length > 0 &&
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {folders.map((folder) =>
+          {folders.map((folder) => {
+            const isArchived = folder.projectStatus === 'archived';
+            return (
       <button
         key={folder.id}
         onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
-        className="group relative flex flex-col gap-3 p-5 rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-200 text-left">
+        className={cn(
+          "group relative flex flex-col gap-3 p-5 rounded-xl border transition-all duration-200 text-left",
+          isArchived
+            ? "border-border/50 bg-muted/40 opacity-70 hover:opacity-90 hover:border-border"
+            : "border-border bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+        )}>
 
               <div className="flex items-start justify-between">
                 <div className={cn(
             "w-10 h-10 rounded-lg flex items-center justify-center",
+            isArchived ? "bg-muted" :
             folder.type === 'client' ? "bg-primary/10" :
             folder.projectType === 'water-solutions' ? "bg-blue-500/10" :
             folder.projectType === 'digitalization' ? "bg-emerald-500/10" :
@@ -201,6 +236,8 @@ const ExplorerPage = () => {
           )}>
                   {folder.type === 'client' ?
             <Building2 className="w-5 h-5 text-primary" /> :
+            isArchived ?
+            <Archive className="w-5 h-5 text-muted-foreground" /> :
             folder.projectType === 'water-solutions' ?
             <Droplets className="w-5 h-5 text-blue-500" /> :
             folder.projectType === 'digitalization' ?
@@ -209,16 +246,36 @@ const ExplorerPage = () => {
             <BarChart3 className="w-5 h-5 text-orange-500" />
             }
                 </div>
-                {folder.type === 'project' && folder.projectType &&
-          <span className={cn(
-            "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full",
-            folder.projectType === 'water-solutions' ? "bg-blue-500/10 text-blue-500" :
-            folder.projectType === 'digitalization' ? "bg-emerald-500/10 text-emerald-500" :
-            "bg-orange-500/10 text-orange-500"
-          )}>
-                    {PROJECT_TYPES.find((pt) => pt.value === folder.projectType)?.label}
-                  </span>
-          }
+                <div className="flex items-center gap-1.5">
+                  {folder.type === 'project' && folder.projectStatus === 'archived' &&
+                    <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                      Archivado
+                    </span>
+                  }
+                  {folder.type === 'project' && folder.projectType &&
+            <span className={cn(
+              "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full",
+              isArchived ? "bg-muted text-muted-foreground" :
+              folder.projectType === 'water-solutions' ? "bg-blue-500/10 text-blue-500" :
+              folder.projectType === 'digitalization' ? "bg-emerald-500/10 text-emerald-500" :
+              "bg-orange-500/10 text-orange-500"
+            )}>
+                        {PROJECT_TYPES.find((pt) => pt.value === folder.projectType)?.label}
+                      </span>
+            }
+                  {isAdmin && folder.type === 'project' && folder.projectStatus === 'active' &&
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-warning opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -mr-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setArchiveTarget(folder.id);
+                      }}>
+                      <Archive className="w-3.5 h-3.5" />
+                    </Button>
+                  }
+                </div>
                 {canDelete && folder.type === 'client' &&
           <Button
             variant="ghost"
@@ -235,7 +292,10 @@ const ExplorerPage = () => {
           }
               </div>
               <div>
-                <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{folder.name}</p>
+                <p className={cn(
+                  "text-sm font-semibold transition-colors line-clamp-1",
+                  isArchived ? "text-muted-foreground" : "text-foreground group-hover:text-primary"
+                )}>{folder.name}</p>
                 {folder.description &&
           <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{folder.description}</p>
           }
@@ -250,7 +310,8 @@ const ExplorerPage = () => {
           }
               </div>
             </button>
-      )}
+            );
+      })}
         </div>
     }
 
@@ -418,30 +479,43 @@ const ExplorerPage = () => {
             {isClientRole ? 'Navega por tus proyectos y documentación' : 'Navega por la estructura de Clientes y Proyectos'}
           </p>
         </div>
-        {isAdmin && currentLevel.type === 'root' &&
-        <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => setShowNewClient(true)}>
-            <Plus className="w-4 h-4 mr-1.5" />
-            Nuevo Cliente
-          </Button>
-        }
-        {canUpload && currentLevel.type === 'client' &&
-        <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => setShowNewProject(true)}>
-            <Plus className="w-4 h-4 mr-1.5" />
-            Nuevo Proyecto
-          </Button>
-        }
-        {canUpload && (currentLevel.type === 'project' || currentLevel.type === 'folder') &&
-        <div className="flex gap-2">
-            <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => toast.success('Carpeta creada (simulado)')}>
+        <div className="flex items-center gap-2">
+          {/* Archive project button when inside a project (admin only) */}
+          {isAdmin && currentLevel.type === 'project' && currentProjectData?.status === 'active' &&
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-warning/50 text-warning hover:bg-warning/10"
+              onClick={() => setArchiveTarget(currentLevel.id)}>
+              <Archive className="w-4 h-4 mr-1.5" />
+              Archivar Proyecto
+            </Button>
+          }
+          {isAdmin && currentLevel.type === 'root' &&
+          <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => setShowNewClient(true)}>
               <Plus className="w-4 h-4 mr-1.5" />
-              Nueva Carpeta
+              Nuevo Cliente
             </Button>
-            <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => toast.success('Archivo subido (simulado)')}>
-              <Upload className="w-4 h-4 mr-1.5" />
-              Subir Archivo
+          }
+          {canUpload && currentLevel.type === 'client' &&
+          <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => setShowNewProject(true)}>
+              <Plus className="w-4 h-4 mr-1.5" />
+              Nuevo Proyecto
             </Button>
-          </div>
-        }
+          }
+          {canUpload && (currentLevel.type === 'project' || currentLevel.type === 'folder') &&
+          <div className="flex gap-2">
+              <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => toast.success('Carpeta creada (simulado)')}>
+                <Plus className="w-4 h-4 mr-1.5" />
+                Nueva Carpeta
+              </Button>
+              <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => toast.success('Archivo subido (simulado)')}>
+                <Upload className="w-4 h-4 mr-1.5" />
+                Subir Archivo
+              </Button>
+            </div>
+          }
+        </div>
       </div>
 
       {/* Breadcrumb */}
@@ -461,15 +535,28 @@ const ExplorerPage = () => {
         )}
       </div>
 
-      {/* Search */}
-      <div className="relative mb-6 max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 bg-card border-border text-foreground placeholder:text-muted-foreground" />
-
+      {/* Search + Status filter */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="relative max-w-md flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 bg-card border-border text-foreground placeholder:text-muted-foreground" />
+        </div>
+        {isAdmin && currentLevel.type === 'client' &&
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'active' | 'archived' | 'all')}>
+            <SelectTrigger className="w-[180px] bg-card border-border">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-card border-border">
+              <SelectItem value="active">Activos</SelectItem>
+              <SelectItem value="archived">Archivados</SelectItem>
+              <SelectItem value="all">Todos</SelectItem>
+            </SelectContent>
+          </Select>
+        }
       </div>
 
       {/* Content + Comments layout */}
@@ -575,6 +662,31 @@ const ExplorerPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* AlertDialog Archivar Proyecto */}
+      <AlertDialog open={!!archiveTarget} onOpenChange={(open) => !open && setArchiveTarget(null)}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-heading flex items-center gap-2 text-foreground">
+              <Archive className="w-5 h-5 text-warning" />
+              Archivar Proyecto
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground leading-relaxed">
+              Al archivar este proyecto, toda la documentación asociada <strong className="text-foreground">dejará de estar visible para el cliente</strong>. El proyecto se moverá al histórico y solo será accesible desde el filtro «Archivados».
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-primary text-primary hover:bg-primary/10 hover:text-primary">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleArchiveProject}
+              className="bg-secondary text-secondary-foreground hover:bg-secondary/80 font-semibold">
+              Confirmar Archivado
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>);
 
 };

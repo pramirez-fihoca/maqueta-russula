@@ -20,12 +20,15 @@ export interface Client {
 
 export type ProjectType = 'rolling-mills' | 'water-solutions' | 'digitalization';
 
+export type ProjectStatus = 'active' | 'archived';
+
 export interface Project {
   id: string;
   clientId: string;
   name: string;
   description: string;
   type: ProjectType;
+  status: ProjectStatus;
   createdAt: string;
 }
 
@@ -112,37 +115,37 @@ export const CLIENTS: Client[] = [
 ];
 
 export const PROJECTS: Project[] = [
-  { id: 'p1', clientId: 'c1', name: 'Bar finishing mill upgrade', description: 'Bar finishing mill upgrade', type: 'rolling-mills', createdAt: '2023-01-15' },
-  { id: 'p2', clientId: 'c2', name: 'Break Down Mill Stands A & B', description: 'Break Down Mill Stands A & B', type: 'rolling-mills', createdAt: '2025-02-01' },
-  { id: 'p3', clientId: 'c3', name: 'CCL Waste Water System', description: 'CCL Waste Water System', type: 'water-solutions', createdAt: '2024-03-01' },
-  { id: 'p4', clientId: 'c4', name: 'Cooling Bed Drives Upgrade', description: 'Cooling Bed Drives Upgrade', type: 'rolling-mills', createdAt: '2024-04-01' },
-  { id: 'p5', clientId: 'c5', name: 'Cooling Water Systems for Novelis', description: 'Cooling Water Systems for Novelis', type: 'water-solutions', createdAt: '2024-05-01' },
-  { id: 'p6', clientId: 'c6', name: 'CV sensor and Shear 1 control', description: 'CV sensor and Shear 1 control', type: 'digitalization', createdAt: '2024-06-01' },
-  { id: 'p7', clientId: 'c7', name: 'CV Sensors (Shear Cut)', description: 'CV Sensors (Shear Cut)', type: 'digitalization', createdAt: '2024-07-01' },
-  { id: 'p8', clientId: 'c8', name: 'Drives upgrade', description: 'Drives upgrade', type: 'rolling-mills', createdAt: '2023-06-15' },
-  { id: 'p9', clientId: 'c9', name: 'Drives upgrade', description: 'Drives upgrade', type: 'rolling-mills', createdAt: '2023-03-15' },
-  { id: 'p10', clientId: 'c10', name: 'Drives upgrade for saws', description: 'Drives upgrade for saws', type: 'rolling-mills', createdAt: '2023-04-15' },
-  { id: 'p11', clientId: 'c7', name: 'Electrical & Automation Upgrade', description: 'Electrical & Automation Upgrade', type: 'rolling-mills', createdAt: '2024-08-01' },
-  { id: 'p12', clientId: 'c5', name: 'Furnace Cooling System', description: 'Furnace Cooling System', type: 'water-solutions', createdAt: '2025-01-15' },
-  { id: 'p13', clientId: 'c11', name: 'MakeUp Iron Removal System', description: 'MakeUp Iron Removal System', type: 'water-solutions', createdAt: '2024-06-15' },
-  { id: 'p14', clientId: 'c12', name: 'Mill Control Upgrade', description: 'Mill Control Upgrade', type: 'rolling-mills', createdAt: '2024-07-15' },
-  { id: 'p15', clientId: 'c12', name: 'Mill Drives Upgrade Phase 1', description: 'Mill Drives Upgrade Phase 1', type: 'rolling-mills', createdAt: '2024-08-15' },
-  { id: 'p16', clientId: 'c13', name: 'Mill Pulse® MES Implementation', description: 'Mill Pulse MES Implementation', type: 'digitalization', createdAt: '2023-08-15' },
-  { id: 'p17', clientId: 'c14', name: 'NGO Water Facility', description: 'NGO Water Facility', type: 'water-solutions', createdAt: '2025-01-20' },
-  { id: 'p18', clientId: 'c15', name: 'Production improvement Mill Pulse®', description: 'Production improvement Mill Pulse', type: 'digitalization', createdAt: '2023-09-15' },
-  { id: 'p19', clientId: 'c5', name: 'Reverse osmosis water system', description: 'Reverse osmosis water system', type: 'water-solutions', createdAt: '2024-09-01' },
-  { id: 'p20', clientId: 'c16', name: 'Rod Block Drives Upgrade', description: 'Rod Block Drives Upgrade', type: 'rolling-mills', createdAt: '2024-08-20' },
-  { id: 'p21', clientId: 'c17', name: 'Slab caster automation & drives', description: 'Slab caster automation & drives', type: 'rolling-mills', createdAt: '2023-10-15' },
-  { id: 'p22', clientId: 'c18', name: 'Stacker Upgrade', description: 'Stacker Upgrade', type: 'rolling-mills', createdAt: '2024-09-15' },
-  { id: 'p23', clientId: 'c6', name: 'Stands Mill Drives Upgrade', description: 'Stands Mill Drives Upgrade', type: 'rolling-mills', createdAt: '2024-10-01' },
-  { id: 'p24', clientId: 'c19', name: 'Structural Mill Automation', description: 'Structural Mill Automation', type: 'rolling-mills', createdAt: '2024-10-15' },
-  { id: 'p25', clientId: 'c20', name: 'Sustainable production solutions', description: 'Sustainable production solutions', type: 'water-solutions', createdAt: '2023-11-15' },
-  { id: 'p26', clientId: 'c21', name: 'TX2 drives upgrade', description: 'TX2 drives upgrade', type: 'rolling-mills', createdAt: '2023-05-15' },
-  { id: 'p27', clientId: 'c3', name: 'Waste Water Expansion DAF', description: 'Waste Water Expansion DAF', type: 'water-solutions', createdAt: '2024-11-01' },
-  { id: 'p28', clientId: 'c22', name: 'Water System Automation Upgrade', description: 'Water System Automation Upgrade', type: 'water-solutions', createdAt: '2024-11-15' },
-  { id: 'p29', clientId: 'c23', name: 'Water System Bar and Section Mill', description: 'Water System Bar and Section Mill', type: 'rolling-mills', createdAt: '2024-06-20' },
-  { id: 'p30', clientId: 'c24', name: 'Water treatment plant', description: 'Water treatment plant', type: 'water-solutions', createdAt: '2023-07-15' },
-  { id: 'p31', clientId: 'c25', name: 'ZLD Solution for New Micromill', description: 'ZLD Solution for New Micromill', type: 'water-solutions', createdAt: '2025-02-10' },
+  { id: 'p1', clientId: 'c1', name: 'Bar finishing mill upgrade', description: 'Bar finishing mill upgrade', type: 'rolling-mills', status: 'active', createdAt: '2023-01-15' },
+  { id: 'p2', clientId: 'c2', name: 'Break Down Mill Stands A & B', description: 'Break Down Mill Stands A & B', type: 'rolling-mills', status: 'active', createdAt: '2025-02-01' },
+  { id: 'p3', clientId: 'c3', name: 'CCL Waste Water System', description: 'CCL Waste Water System', type: 'water-solutions', status: 'active', createdAt: '2024-03-01' },
+  { id: 'p4', clientId: 'c4', name: 'Cooling Bed Drives Upgrade', description: 'Cooling Bed Drives Upgrade', type: 'rolling-mills', status: 'archived', createdAt: '2024-04-01' },
+  { id: 'p5', clientId: 'c5', name: 'Cooling Water Systems for Novelis', description: 'Cooling Water Systems for Novelis', type: 'water-solutions', status: 'active', createdAt: '2024-05-01' },
+  { id: 'p6', clientId: 'c6', name: 'CV sensor and Shear 1 control', description: 'CV sensor and Shear 1 control', type: 'digitalization', status: 'active', createdAt: '2024-06-01' },
+  { id: 'p7', clientId: 'c7', name: 'CV Sensors (Shear Cut)', description: 'CV Sensors (Shear Cut)', type: 'digitalization', status: 'active', createdAt: '2024-07-01' },
+  { id: 'p8', clientId: 'c8', name: 'Drives upgrade', description: 'Drives upgrade', type: 'rolling-mills', status: 'archived', createdAt: '2023-06-15' },
+  { id: 'p9', clientId: 'c9', name: 'Drives upgrade', description: 'Drives upgrade', type: 'rolling-mills', status: 'active', createdAt: '2023-03-15' },
+  { id: 'p10', clientId: 'c10', name: 'Drives upgrade for saws', description: 'Drives upgrade for saws', type: 'rolling-mills', status: 'archived', createdAt: '2023-04-15' },
+  { id: 'p11', clientId: 'c7', name: 'Electrical & Automation Upgrade', description: 'Electrical & Automation Upgrade', type: 'rolling-mills', status: 'active', createdAt: '2024-08-01' },
+  { id: 'p12', clientId: 'c5', name: 'Furnace Cooling System', description: 'Furnace Cooling System', type: 'water-solutions', status: 'active', createdAt: '2025-01-15' },
+  { id: 'p13', clientId: 'c11', name: 'MakeUp Iron Removal System', description: 'MakeUp Iron Removal System', type: 'water-solutions', status: 'active', createdAt: '2024-06-15' },
+  { id: 'p14', clientId: 'c12', name: 'Mill Control Upgrade', description: 'Mill Control Upgrade', type: 'rolling-mills', status: 'active', createdAt: '2024-07-15' },
+  { id: 'p15', clientId: 'c12', name: 'Mill Drives Upgrade Phase 1', description: 'Mill Drives Upgrade Phase 1', type: 'rolling-mills', status: 'active', createdAt: '2024-08-15' },
+  { id: 'p16', clientId: 'c13', name: 'Mill Pulse® MES Implementation', description: 'Mill Pulse MES Implementation', type: 'digitalization', status: 'active', createdAt: '2023-08-15' },
+  { id: 'p17', clientId: 'c14', name: 'NGO Water Facility', description: 'NGO Water Facility', type: 'water-solutions', status: 'active', createdAt: '2025-01-20' },
+  { id: 'p18', clientId: 'c15', name: 'Production improvement Mill Pulse®', description: 'Production improvement Mill Pulse', type: 'digitalization', status: 'archived', createdAt: '2023-09-15' },
+  { id: 'p19', clientId: 'c5', name: 'Reverse osmosis water system', description: 'Reverse osmosis water system', type: 'water-solutions', status: 'active', createdAt: '2024-09-01' },
+  { id: 'p20', clientId: 'c16', name: 'Rod Block Drives Upgrade', description: 'Rod Block Drives Upgrade', type: 'rolling-mills', status: 'active', createdAt: '2024-08-20' },
+  { id: 'p21', clientId: 'c17', name: 'Slab caster automation & drives', description: 'Slab caster automation & drives', type: 'rolling-mills', status: 'active', createdAt: '2023-10-15' },
+  { id: 'p22', clientId: 'c18', name: 'Stacker Upgrade', description: 'Stacker Upgrade', type: 'rolling-mills', status: 'active', createdAt: '2024-09-15' },
+  { id: 'p23', clientId: 'c6', name: 'Stands Mill Drives Upgrade', description: 'Stands Mill Drives Upgrade', type: 'rolling-mills', status: 'active', createdAt: '2024-10-01' },
+  { id: 'p24', clientId: 'c19', name: 'Structural Mill Automation', description: 'Structural Mill Automation', type: 'rolling-mills', status: 'active', createdAt: '2024-10-15' },
+  { id: 'p25', clientId: 'c20', name: 'Sustainable production solutions', description: 'Sustainable production solutions', type: 'water-solutions', status: 'active', createdAt: '2023-11-15' },
+  { id: 'p26', clientId: 'c21', name: 'TX2 drives upgrade', description: 'TX2 drives upgrade', type: 'rolling-mills', status: 'active', createdAt: '2023-05-15' },
+  { id: 'p27', clientId: 'c3', name: 'Waste Water Expansion DAF', description: 'Waste Water Expansion DAF', type: 'water-solutions', status: 'active', createdAt: '2024-11-01' },
+  { id: 'p28', clientId: 'c22', name: 'Water System Automation Upgrade', description: 'Water System Automation Upgrade', type: 'water-solutions', status: 'active', createdAt: '2024-11-15' },
+  { id: 'p29', clientId: 'c23', name: 'Water System Bar and Section Mill', description: 'Water System Bar and Section Mill', type: 'rolling-mills', status: 'active', createdAt: '2024-06-20' },
+  { id: 'p30', clientId: 'c24', name: 'Water treatment plant', description: 'Water treatment plant', type: 'water-solutions', status: 'active', createdAt: '2023-07-15' },
+  { id: 'p31', clientId: 'c25', name: 'ZLD Solution for New Micromill', description: 'ZLD Solution for New Micromill', type: 'water-solutions', status: 'active', createdAt: '2025-02-10' },
 ];
 
 export const FOLDERS: Folder[] = [
