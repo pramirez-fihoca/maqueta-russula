@@ -146,6 +146,7 @@ export const PROJECTS: Project[] = [
   { id: 'p29', clientId: 'c23', name: 'Water System Bar and Section Mill', description: 'Water System Bar and Section Mill', type: 'rolling-mills', status: 'active', createdAt: '2024-06-20' },
   { id: 'p30', clientId: 'c24', name: 'Water treatment plant', description: 'Water treatment plant', type: 'water-solutions', status: 'active', createdAt: '2023-07-15' },
   { id: 'p31', clientId: 'c25', name: 'ZLD Solution for New Micromill', description: 'ZLD Solution for New Micromill', type: 'water-solutions', status: 'active', createdAt: '2025-02-10' },
+  { id: 'p32', clientId: 'c1', name: 'Furnace PLC Retrofit', description: 'Retrofit del sistema PLC del horno de recalentamiento', type: 'digitalization', status: 'archived', createdAt: '2022-06-10' },
 ];
 
 export const FOLDERS: Folder[] = [
@@ -160,6 +161,8 @@ export const FOLDERS: Folder[] = [
   { id: 'f9', projectId: 'p4', parentId: null, name: 'PLC Programs', createdAt: '2024-07-25' },
   { id: 'f10', projectId: 'p5', parentId: null, name: 'Project Plans', createdAt: '2024-08-05' },
   { id: 'f11', projectId: 'p6', parentId: null, name: 'Environmental Reports', createdAt: '2024-09-20' },
+  { id: 'f12', projectId: 'p32', parentId: null, name: 'PLC Migration', createdAt: '2022-07-01' },
+  { id: 'f13', projectId: 'p32', parentId: null, name: 'Commissioning Reports', createdAt: '2022-09-15' },
 ];
 
 export const DOCUMENTS: Document[] = [
@@ -186,6 +189,12 @@ export const DOCUMENTS: Document[] = [
   { id: 'd20', folderId: 'f10', name: 'Novelis-Plant-Layout-Existing.dwg', type: 'application/dwg', size: 9500000, uploadedBy: 'u8', uploadedAt: '2024-09-01' },
   { id: 'd21', folderId: 'f11', name: 'Gerdau-Environmental-Baseline.pdf', type: 'application/pdf', size: 3100000, uploadedBy: 'u5', uploadedAt: '2024-09-25' },
   { id: 'd22', folderId: 'f9', name: 'Nucor-PLC-IO-List-Furnace.xlsx', type: 'application/xlsx', size: 780000, uploadedBy: 'u3', uploadedAt: '2024-08-28' },
+  // Documentos del proyecto archivado Furnace PLC Retrofit (Nucor Kingman)
+  { id: 'd23', folderId: 'f12', name: 'PLC-Migration-Plan-Furnace.pdf', type: 'application/pdf', size: 3200000, uploadedBy: 'u2', uploadedAt: '2022-07-10' },
+  { id: 'd24', folderId: 'f12', name: 'Siemens-S7-IO-Mapping.xlsx', type: 'application/xlsx', size: 450000, uploadedBy: 'u2', uploadedAt: '2022-07-20' },
+  { id: 'd25', folderId: 'f12', name: 'Nucor-Existing-PLC-Backup.zip', type: 'application/zip', size: 18500000, uploadedBy: 'u3', uploadedAt: '2022-08-05' },
+  { id: 'd26', folderId: 'f13', name: 'Commissioning-Report-Phase1.pdf', type: 'application/pdf', size: 2700000, uploadedBy: 'u2', uploadedAt: '2022-10-01' },
+  { id: 'd27', folderId: 'f13', name: 'FAT-Test-Results-Final.pdf', type: 'application/pdf', size: 1900000, uploadedBy: 'u1', uploadedAt: '2022-10-15' },
 ];
 
 export const COMMENTS: Comment[] = [
