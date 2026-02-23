@@ -73,6 +73,7 @@ const ExplorerPage = () => {
   const [newComment, setNewComment] = useState('');
   const [statusFilter, setStatusFilter] = useState<'active' | 'archived' | 'all'>('active');
   const [archiveTarget, setArchiveTarget] = useState<string | null>(null);
+  const [archiveConfirmText, setArchiveConfirmText] = useState('');
 
   const currentLevel = breadcrumb[breadcrumb.length - 1];
   const isAdmin = user?.role === 'admin';
@@ -133,6 +134,7 @@ const ExplorerPage = () => {
     setLocalProjects(localProjects.map(p => p.id === archiveTarget ? { ...p, status: 'archived' as ProjectStatus } : p));
     const project = localProjects.find(p => p.id === archiveTarget);
     setArchiveTarget(null);
+    setArchiveConfirmText('');
     toast.success(`Proyecto "${project?.name}" archivado correctamente`);
   };
 
@@ -664,7 +666,7 @@ const ExplorerPage = () => {
       </Dialog>
 
       {/* AlertDialog Archivar Proyecto */}
-      <AlertDialog open={!!archiveTarget} onOpenChange={(open) => !open && setArchiveTarget(null)}>
+      <AlertDialog open={!!archiveTarget} onOpenChange={(open) => { if (!open) { setArchiveTarget(null); setArchiveConfirmText(''); } }}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-heading flex items-center gap-2 text-foreground">
@@ -675,13 +677,26 @@ const ExplorerPage = () => {
               Al archivar este proyecto, toda la documentación asociada <strong className="text-foreground">dejará de estar visible para el cliente</strong>. El proyecto se moverá al histórico y solo será accesible desde el filtro «Archivados».
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="space-y-2 py-2">
+            <Label className="text-sm text-muted-foreground">Por seguridad, escriba <strong className="text-foreground">ARCHIVAR</strong> para confirmar</Label>
+            <Input
+              value={archiveConfirmText}
+              onChange={(e) => setArchiveConfirmText(e.target.value)}
+              placeholder="ARCHIVAR"
+              className={cn(
+                "bg-background border-border",
+                archiveConfirmText === 'ARCHIVAR' && "border-warning ring-1 ring-warning"
+              )}
+            />
+          </div>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-primary text-primary hover:bg-primary/10 hover:text-primary">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleArchiveProject}
-              className="bg-secondary text-secondary-foreground hover:bg-secondary/80 font-semibold">
+              disabled={archiveConfirmText !== 'ARCHIVAR'}
+              className="bg-secondary text-secondary-foreground hover:bg-secondary/80 font-semibold disabled:opacity-50 disabled:pointer-events-none">
               Confirmar Archivado
             </AlertDialogAction>
           </AlertDialogFooter>
