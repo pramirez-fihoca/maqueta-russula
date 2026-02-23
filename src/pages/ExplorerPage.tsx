@@ -257,18 +257,20 @@ const ExplorerPage = () => {
       {/* Windows Explorer-style table for folders and documents inside projects */}
       {(currentLevel.type === 'project' || currentLevel.type === 'folder') && (folders.length > 0 || documents.length > 0) &&
     <div className="border border-border rounded-lg overflow-hidden bg-card">
-          <div className="grid grid-cols-[1fr_180px_200px_100px] gap-0 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="grid grid-cols-[1fr_180px_200px_140px_140px_100px] gap-0 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wider">
             <div className="px-4 py-2.5">Nombre</div>
             <div className="px-4 py-2.5">Fecha de modificación</div>
             <div className="px-4 py-2.5">Tipo</div>
+            <div className="px-4 py-2.5">Subido por</div>
+            <div className="px-4 py-2.5">Empresa</div>
             <div className="px-4 py-2.5 text-right">Tamaño</div>
           </div>
 
           {folders.map((folder) =>
-      <button
-        key={folder.id}
-        onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
-        className="w-full grid grid-cols-[1fr_180px_200px_100px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
+        <button
+          key={folder.id}
+          onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
+          className="w-full grid grid-cols-[1fr_180px_200px_140px_140px_100px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
 
               <div className="px-4 py-2.5 flex items-center gap-2.5 text-left">
                 <Folder className="w-4 h-4 text-amber-500 shrink-0" />
@@ -276,6 +278,8 @@ const ExplorerPage = () => {
               </div>
               <div className="px-4 py-2.5 text-sm text-muted-foreground">{folder.date}</div>
               <div className="px-4 py-2.5 text-sm text-muted-foreground">Carpeta de archivos</div>
+              <div className="px-4 py-2.5 text-sm text-muted-foreground">—</div>
+              <div className="px-4 py-2.5 text-sm text-muted-foreground">—</div>
               <div className="px-4 py-2.5 text-sm text-muted-foreground text-right">—</div>
             </button>
       )}
@@ -283,7 +287,7 @@ const ExplorerPage = () => {
           {documents.map((doc) =>
       <div
         key={doc.id}
-        className="w-full grid grid-cols-[1fr_180px_200px_100px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
+        className="w-full grid grid-cols-[1fr_180px_200px_140px_140px_100px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
 
               <button
           onClick={() => navigate(`/dashboard/document/${doc.id}`)}
@@ -294,6 +298,8 @@ const ExplorerPage = () => {
               </button>
               <div className="px-4 py-2.5 text-sm text-muted-foreground">{doc.uploadedAt}</div>
               <div className="px-4 py-2.5 text-sm text-muted-foreground">{getFileTypeLabel(doc.name)}</div>
+              <div className="px-4 py-2.5 text-sm text-muted-foreground truncate">{USERS.find(u => u.id === doc.uploadedBy)?.name ?? '—'}</div>
+              <div className="px-4 py-2.5 text-sm text-muted-foreground truncate">{USERS.find(u => u.id === doc.uploadedBy)?.company ?? '—'}</div>
               <div className="px-4 py-2.5 text-sm text-muted-foreground text-right">{formatFileSize(doc.size)}</div>
             </div>
       )}
