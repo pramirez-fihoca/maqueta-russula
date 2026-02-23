@@ -74,6 +74,7 @@ const ExplorerPage = () => {
   const [statusFilter, setStatusFilter] = useState<'active' | 'archived' | 'all'>('active');
   const [archiveTarget, setArchiveTarget] = useState<string | null>(null);
   const [archiveConfirmText, setArchiveConfirmText] = useState('');
+  const [activateTarget, setActivateTarget] = useState<string | null>(null);
 
   const currentLevel = breadcrumb[breadcrumb.length - 1];
   const isAdmin = user?.role === 'admin';
@@ -136,6 +137,14 @@ const ExplorerPage = () => {
     setArchiveTarget(null);
     setArchiveConfirmText('');
     toast.success(`Proyecto "${project?.name}" archivado correctamente`);
+  };
+
+  const handleActivateProject = () => {
+    if (!activateTarget) return;
+    setLocalProjects(localProjects.map(p => p.id === activateTarget ? { ...p, status: 'active' as ProjectStatus } : p));
+    const project = localProjects.find(p => p.id === activateTarget);
+    setActivateTarget(null);
+    toast.success(`Proyecto "${project?.name}" activado correctamente`);
   };
 
   if (currentLevel.type === 'root') {
@@ -505,7 +514,7 @@ const ExplorerPage = () => {
               Nuevo Proyecto
             </Button>
           }
-          {canUpload && (currentLevel.type === 'project' || currentLevel.type === 'folder') &&
+          {canUpload && (currentLevel.type === 'project' || currentLevel.type === 'folder') && !isCurrentProjectArchived &&
           <div className="flex gap-2">
               <Button size="sm" className="russula-gradient text-primary-foreground hover:opacity-90" onClick={() => toast.success('Carpeta creada (simulado)')}>
                 <Plus className="w-4 h-4 mr-1.5" />
@@ -516,6 +525,16 @@ const ExplorerPage = () => {
                 Subir Archivo
               </Button>
             </div>
+          }
+          {isAdmin && currentLevel.type === 'project' && isCurrentProjectArchived &&
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-success/50 text-success hover:bg-success/10"
+              onClick={() => setActivateTarget(currentLevel.id)}>
+              <BarChart3 className="w-4 h-4 mr-1.5" />
+              Activar Proyecto
+            </Button>
           }
         </div>
       </div>
@@ -698,6 +717,39 @@ const ExplorerPage = () => {
               disabled={archiveConfirmText !== 'ARCHIVAR'}
               className="bg-secondary text-secondary-foreground hover:bg-secondary/80 font-semibold disabled:opacity-50 disabled:pointer-events-none">
               Confirmar Archivado
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* AlertDialog Activar Proyecto */}
+      <AlertDialog open={!!activateTarget} onOpenChange={(open) => !open && setActivateTarget(null)}>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-heading flex items-center gap-2 text-foreground">
+              <BarChart3 className="w-5 h-5 text-success" />
+              Activar Proyecto
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="text-muted-foreground leading-relaxed space-y-3">
+                <p>Estás a punto de desarchivar el proyecto <strong className="text-foreground">{localProjects.find(p => p.id === activateTarget)?.name}</strong>.</p>
+                <ul className="space-y-2 text-sm">
+                  <li><strong className="text-foreground">Visibilidad:</strong> El proyecto volverá a aparecer en el Explorador de Clientes de forma inmediata.</li>
+                  <li><strong className="text-foreground">Acceso:</strong> Todos los usuarios y clientes asignados recuperarán sus permisos de visualización y descarga.</li>
+                  <li><strong className="text-foreground">Sincronización:</strong> Se reactivarán las notificaciones y el Foro Técnico asociado a este proyecto.</li>
+                </ul>
+                <p>¿Deseas devolver este proyecto al estado Activo?</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-primary text-primary hover:bg-primary/10 hover:text-primary">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleActivateProject}
+              className="bg-success text-primary-foreground hover:bg-success/90 font-semibold">
+              Activar Proyecto
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
