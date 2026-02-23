@@ -4,18 +4,28 @@ import { USERS } from '@/data/mockData';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Lock, Mail, AlertCircle } from 'lucide-react';
+import { Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
 import russulaLogo from '@/assets/russula-logo.png';
 import russulaLogoLight from '@/assets/russula-logo-light.png';
 import { useTheme } from 'next-themes';
+import { Separator } from '@/components/ui/separator';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [msLoading, setMsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const { theme } = useTheme();
+
+  const handleMicrosoftLogin = () => {
+    setMsLoading(true);
+    setTimeout(() => {
+      login('carlos@russula.com', '');
+      navigate('/dashboard');
+    }, 1500);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +100,39 @@ const LoginPage = () => {
               ¿Olvidaste tu contraseña?
             </button>
           </form>
+
+          {/* Microsoft SSO divider */}
+          <div className="flex items-center gap-3 my-5">
+            <Separator className="flex-1" />
+            <span className="text-xs text-muted-foreground whitespace-nowrap">o continuar con</span>
+            <Separator className="flex-1" />
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleMicrosoftLogin}
+            disabled={msLoading}
+            className="w-full h-11 bg-card border-border hover:bg-muted transition-colors font-medium text-foreground"
+          >
+            {msLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Conectando...</span>
+              </>
+            ) : (
+              <>
+                {/* Microsoft logo – 4 colored squares */}
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 21 21" className="shrink-0">
+                  <rect x="1" y="1" width="9" height="9" fill="#F25022" />
+                  <rect x="11" y="1" width="9" height="9" fill="#7FBA00" />
+                  <rect x="1" y="11" width="9" height="9" fill="#00A4EF" />
+                  <rect x="11" y="11" width="9" height="9" fill="#FFB900" />
+                </svg>
+                <span>Acceder con cuenta de Russula</span>
+              </>
+            )}
+          </Button>
 
           {/* Demo users */}
           <div className="mt-6 pt-6 border-t border-border">
