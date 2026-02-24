@@ -367,15 +367,15 @@ const ExplorerPage = () => {
       <button
         key={folder.id}
         onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
-        className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-start hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
+        className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-start text-left hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
 
               <div className="px-3 py-2.5 flex items-center gap-2 text-left min-w-0">
                 <Folder className="w-4 h-4 text-amber-500 shrink-0" />
                 <span className="text-sm text-foreground group-hover:text-primary transition-colors truncate">{folder.name}</span>
               </div>
-              <div className="px-3 py-2.5 text-xs text-muted-foreground">{folder.date}</div>
-              <div className="px-3 py-2.5 text-xs text-muted-foreground truncate">Carpeta</div>
-              <div className="px-3 py-2.5 text-xs text-muted-foreground">—</div>
+              <div className="px-3 py-2.5 text-xs text-muted-foreground text-left">{folder.date}</div>
+              <div className="px-3 py-2.5 text-xs text-muted-foreground text-left truncate">Carpeta</div>
+              <div className="px-3 py-2.5 text-xs text-muted-foreground text-left">—</div>
               <div className="px-3 py-2.5 text-xs text-muted-foreground text-right">—</div>
             </button>
       )}
