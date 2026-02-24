@@ -355,10 +355,11 @@ const ExplorerPage = () => {
       {/* Windows Explorer-style table for folders and documents inside projects */}
       {(currentLevel.type === 'project' || currentLevel.type === 'folder') && (folders.length > 0 || documents.length > 0) &&
     <div className="border border-border rounded-lg overflow-hidden bg-card">
-          <div className="grid grid-cols-[1fr_100px_120px_70px] gap-0 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          <div className="grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 bg-muted/50 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wider">
             <div className="px-3 py-2.5">Nombre</div>
             <div className="px-3 py-2.5">Fecha</div>
             <div className="px-3 py-2.5">Tipo</div>
+            <div className="px-3 py-2.5">Subido por</div>
             <div className="px-3 py-2.5 text-right">Tamaño</div>
           </div>
 
@@ -366,7 +367,7 @@ const ExplorerPage = () => {
         <button
           key={folder.id}
           onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
-           className="w-full grid grid-cols-[1fr_100px_120px_70px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
+           className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
 
               <div className="px-3 py-2.5 flex items-center gap-2 text-left min-w-0">
                 <Folder className="w-4 h-4 text-amber-500 shrink-0" />
@@ -374,6 +375,7 @@ const ExplorerPage = () => {
               </div>
               <div className="px-3 py-2.5 text-xs text-muted-foreground">{folder.date}</div>
               <div className="px-3 py-2.5 text-xs text-muted-foreground truncate">Carpeta</div>
+              <div className="px-3 py-2.5 text-xs text-muted-foreground">—</div>
               <div className="px-3 py-2.5 text-xs text-muted-foreground text-right">—</div>
             </button>
       )}
@@ -383,20 +385,23 @@ const ExplorerPage = () => {
             return (
       <div
         key={doc.id}
-         className="w-full grid grid-cols-[1fr_100px_120px_70px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
+         className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
 
               <button
           onClick={() => navigate(`/dashboard/document/${doc.id}`)}
           className="px-3 py-2.5 flex items-center gap-2 text-left min-w-0">
 
                 {getFileTypeIcon(doc.name)}
-                <div className="min-w-0 flex-1">
-                  <span className="text-sm text-foreground group-hover:text-primary transition-colors truncate block">{doc.name}</span>
-                  {uploader && <span className={cn("text-[10px] truncate block", uploader.company === 'Russula' ? 'text-primary' : 'text-muted-foreground')}>{uploader.name} · {uploader.company}</span>}
-                </div>
+                <span className="text-sm text-foreground group-hover:text-primary transition-colors truncate">{doc.name}</span>
               </button>
               <div className="px-3 py-2.5 text-xs text-muted-foreground">{doc.uploadedAt}</div>
               <div className="px-3 py-2.5 text-xs text-muted-foreground truncate">{getFileTypeLabel(doc.name)}</div>
+              <div className="px-3 py-2 min-w-0">
+                {uploader && <>
+                  <span className="text-xs text-muted-foreground truncate block">{uploader.name}</span>
+                  <span className={cn("inline-block mt-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium truncate", uploader.company === 'Russula' ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground')}>{uploader.company}</span>
+                </>}
+              </div>
               <div className="px-3 py-2.5 text-xs text-muted-foreground text-right">{formatFileSize(doc.size)}</div>
             </div>
             );
