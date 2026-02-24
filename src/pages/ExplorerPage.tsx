@@ -132,8 +132,8 @@ const ExplorerPage = () => {
 
   const handleArchiveProject = () => {
     if (!archiveTarget) return;
-    setLocalProjects(localProjects.map(p => p.id === archiveTarget ? { ...p, status: 'archived' as ProjectStatus } : p));
-    const project = localProjects.find(p => p.id === archiveTarget);
+    setLocalProjects(localProjects.map((p) => p.id === archiveTarget ? { ...p, status: 'archived' as ProjectStatus } : p));
+    const project = localProjects.find((p) => p.id === archiveTarget);
     setArchiveTarget(null);
     setArchiveConfirmText('');
     toast.success(`Proyecto "${project?.name}" archivado correctamente`);
@@ -141,8 +141,8 @@ const ExplorerPage = () => {
 
   const handleActivateProject = () => {
     if (!activateTarget) return;
-    setLocalProjects(localProjects.map(p => p.id === activateTarget ? { ...p, status: 'active' as ProjectStatus } : p));
-    const project = localProjects.find(p => p.id === activateTarget);
+    setLocalProjects(localProjects.map((p) => p.id === activateTarget ? { ...p, status: 'active' as ProjectStatus } : p));
+    const project = localProjects.find((p) => p.id === activateTarget);
     setActivateTarget(null);
     toast.success(`Proyecto "${project?.name}" activado correctamente`);
   };
@@ -160,10 +160,10 @@ const ExplorerPage = () => {
     let clientProjects = localProjects.filter((p) => p.clientId === currentLevel.id);
     // Apply status filter (admin only)
     if (isAdmin && statusFilter !== 'all') {
-      clientProjects = clientProjects.filter(p => p.status === statusFilter);
+      clientProjects = clientProjects.filter((p) => p.status === statusFilter);
     } else if (!isAdmin) {
       // Non-admin users only see active projects
-      clientProjects = clientProjects.filter(p => p.status === 'active');
+      clientProjects = clientProjects.filter((p) => p.status === 'active');
     }
     folders = clientProjects.map((p) => ({ id: p.id, name: p.name, type: 'project' as const, date: p.createdAt, projectType: p.type, projectStatus: p.status, description: p.description }));
   } else if (currentLevel.type === 'project') {
@@ -204,7 +204,7 @@ const ExplorerPage = () => {
   const showComments = (currentLevel.type === 'project' || currentLevel.type === 'folder') && !!projectBreadcrumb || currentLevel.type === 'project';
 
   // Check if current project is archived
-  const currentProjectData = currentLevel.type === 'project' ? localProjects.find(p => p.id === currentLevel.id) : null;
+  const currentProjectData = currentLevel.type === 'project' ? localProjects.find((p) => p.id === currentLevel.id) : null;
   const isCurrentProjectArchived = currentProjectData?.status === 'archived';
 
   // Shared folder/document list content
@@ -224,130 +224,130 @@ const ExplorerPage = () => {
       {(currentLevel.type === 'root' || currentLevel.type === 'client') && folders.length > 0 &&
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {folders.map((folder) => {
-            const isArchived = folder.projectStatus === 'archived';
-            return (
-      <button
-        key={folder.id}
-        onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
-        className={cn(
-          "group relative flex flex-col gap-3 p-5 rounded-xl border transition-all duration-200 text-left",
-          isArchived
-            ? "border-border/50 bg-muted/40 opacity-70 hover:opacity-90 hover:border-border"
-            : "border-border bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
-        )}>
+        const isArchived = folder.projectStatus === 'archived';
+        return (
+          <button
+            key={folder.id}
+            onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
+            className={cn(
+              "group relative flex flex-col gap-3 p-5 rounded-xl border transition-all duration-200 text-left",
+              isArchived ?
+              "border-border/50 bg-muted/40 opacity-70 hover:opacity-90 hover:border-border" :
+              "border-border bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+            )}>
 
               <div className="flex items-start justify-between">
                 <div className={cn(
-            "w-10 h-10 rounded-lg flex items-center justify-center",
-            isArchived ? "bg-muted" :
-            folder.type === 'client' ? "bg-primary/10" :
-            folder.projectType === 'water-solutions' ? "bg-blue-500/10" :
-            folder.projectType === 'digitalization' ? "bg-emerald-500/10" :
-            "bg-orange-500/10"
-          )}>
+                "w-10 h-10 rounded-lg flex items-center justify-center",
+                isArchived ? "bg-muted" :
+                folder.type === 'client' ? "bg-primary/10" :
+                folder.projectType === 'water-solutions' ? "bg-blue-500/10" :
+                folder.projectType === 'digitalization' ? "bg-emerald-500/10" :
+                "bg-orange-500/10"
+              )}>
                   {folder.type === 'client' ?
-            <Building2 className="w-5 h-5 text-primary" /> :
-            isArchived ?
-            <Archive className="w-5 h-5 text-muted-foreground" /> :
-            folder.projectType === 'water-solutions' ?
-            <Droplets className="w-5 h-5 text-blue-500" /> :
-            folder.projectType === 'digitalization' ?
-            <Globe className="w-5 h-5 text-emerald-500" /> :
+                <Building2 className="w-5 h-5 text-primary" /> :
+                isArchived ?
+                <Archive className="w-5 h-5 text-muted-foreground" /> :
+                folder.projectType === 'water-solutions' ?
+                <Droplets className="w-5 h-5 text-blue-500" /> :
+                folder.projectType === 'digitalization' ?
+                <Globe className="w-5 h-5 text-emerald-500" /> :
 
-            <BarChart3 className="w-5 h-5 text-orange-500" />
-            }
+                <BarChart3 className="w-5 h-5 text-orange-500" />
+                }
                 </div>
                 <div className="flex items-center gap-1.5">
                   {folder.type === 'project' && folder.projectStatus === 'archived' &&
-                    <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                       Archivado
                     </span>
-                  }
+                }
                   {folder.type === 'project' && folder.projectType &&
-            <span className={cn(
-              "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full",
-              isArchived ? "bg-muted text-muted-foreground" :
-              folder.projectType === 'water-solutions' ? "bg-blue-500/10 text-blue-500" :
-              folder.projectType === 'digitalization' ? "bg-emerald-500/10 text-emerald-500" :
-              "bg-orange-500/10 text-orange-500"
-            )}>
+                <span className={cn(
+                  "text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full",
+                  isArchived ? "bg-muted text-muted-foreground" :
+                  folder.projectType === 'water-solutions' ? "bg-blue-500/10 text-blue-500" :
+                  folder.projectType === 'digitalization' ? "bg-emerald-500/10 text-emerald-500" :
+                  "bg-orange-500/10 text-orange-500"
+                )}>
                         {PROJECT_TYPES.find((pt) => pt.value === folder.projectType)?.label}
                       </span>
-            }
+                }
                   {isAdmin && folder.type === 'project' && folder.projectStatus === 'active' &&
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-muted-foreground hover:text-warning opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -mr-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setArchiveTarget(folder.id);
-                      }}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-warning opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -mr-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setArchiveTarget(folder.id);
+                  }}>
                       <Archive className="w-3.5 h-3.5" />
                     </Button>
-                  }
+                }
                 </div>
                 {canDelete && folder.type === 'client' &&
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -mr-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              setLocalClients(localClients.filter((c) => c.id !== folder.id));
-              toast.success(`Cliente "${folder.name}" eliminado`);
-            }}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity -mt-1 -mr-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLocalClients(localClients.filter((c) => c.id !== folder.id));
+                  toast.success(`Cliente "${folder.name}" eliminado`);
+                }}>
 
                     <Trash2 className="w-3.5 h-3.5" />
                   </Button>
-          }
+              }
               </div>
               <div>
                 <p className={cn(
-                  "text-sm font-semibold transition-colors line-clamp-1",
-                  isArchived ? "text-muted-foreground" : "text-foreground group-hover:text-primary"
-                )}>{folder.name}</p>
+                "text-sm font-semibold transition-colors line-clamp-1",
+                isArchived ? "text-muted-foreground" : "text-foreground group-hover:text-primary"
+              )}>{folder.name}</p>
                 {folder.description &&
-          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{folder.description}</p>
-          }
+              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{folder.description}</p>
+              }
               </div>
               <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
                 <span className="text-[11px] text-muted-foreground">{folder.date}</span>
                 {folder.type === 'client' && folder.projectCount !== undefined &&
-          <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+              <span className="text-[11px] text-muted-foreground flex items-center gap-1">
                     <Briefcase className="w-3 h-3" />
                     {folder.projectCount} {folder.projectCount === 1 ? 'proyecto' : 'proyectos'}
                   </span>
-          }
+              }
                 {folder.type === 'project' && folder.projectStatus === 'archived' &&
-                  <Button
-                    size="sm"
-                    className="russula-gradient text-primary-foreground hover:opacity-90"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const projectDocs = DOCUMENTS.filter(d => {
-                        const f = FOLDERS.find(fl => fl.id === d.folderId);
-                        return f?.projectId === folder.id;
-                      });
-                      const totalSize = projectDocs.reduce((acc, d) => acc + d.size, 0);
-                      const isLarge = totalSize > 50 * 1024 * 1024;
-                      toast.info('Generando archivo comprimido...');
-                      if (isLarge) {
-                        setTimeout(() => {
-                          toast.warning('Esta operación puede tardar unos minutos debido al volumen de planos y vídeos');
-                        }, 800);
-                      }
-                      setTimeout(() => {
-                        toast.success(`Descarga iniciada: ${folder.name}.zip`);
-                      }, isLarge ? 2000 : 1200);
-                    }}>
+              <Button
+                size="sm"
+                className="russula-gradient text-primary-foreground hover:opacity-90"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const projectDocs = DOCUMENTS.filter((d) => {
+                    const f = FOLDERS.find((fl) => fl.id === d.folderId);
+                    return f?.projectId === folder.id;
+                  });
+                  const totalSize = projectDocs.reduce((acc, d) => acc + d.size, 0);
+                  const isLarge = totalSize > 50 * 1024 * 1024;
+                  toast.info('Generando archivo comprimido...');
+                  if (isLarge) {
+                    setTimeout(() => {
+                      toast.warning('Esta operación puede tardar unos minutos debido al volumen de planos y vídeos');
+                    }, 800);
+                  }
+                  setTimeout(() => {
+                    toast.success(`Descarga iniciada: ${folder.name}.zip`);
+                  }, isLarge ? 2000 : 1200);
+                }}>
                     <FileArchive className="w-3.5 h-3.5" />
                     Descargar ZIP
                   </Button>
-                }
+              }
               </div>
-            </button>
-            );
+            </button>);
+
       })}
         </div>
     }
@@ -364,10 +364,10 @@ const ExplorerPage = () => {
           </div>
 
           {folders.map((folder) =>
-        <button
-          key={folder.id}
-          onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
-           className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-start hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
+      <button
+        key={folder.id}
+        onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
+        className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-start hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
 
               <div className="px-3 py-2.5 flex items-center gap-2 text-left min-w-0">
                 <Folder className="w-4 h-4 text-amber-500 shrink-0" />
@@ -381,15 +381,15 @@ const ExplorerPage = () => {
       )}
 
           {documents.map((doc) => {
-            const uploader = USERS.find(u => u.id === doc.uploadedBy);
-            return (
-      <div
-        key={doc.id}
-         className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-start hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
+        const uploader = USERS.find((u) => u.id === doc.uploadedBy);
+        return (
+          <div
+            key={doc.id}
+            className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-start hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
 
               <button
-          onClick={() => navigate(`/dashboard/document/${doc.id}`)}
-          className="px-3 py-2.5 flex items-center gap-2 text-left min-w-0">
+              onClick={() => navigate(`/dashboard/document/${doc.id}`)}
+              className="px-3 py-2.5 flex items-center gap-2 text-left min-w-0">
 
                 {getFileTypeIcon(doc.name)}
                 <span className="text-sm text-foreground group-hover:text-primary transition-colors truncate">{doc.name}</span>
@@ -403,8 +403,8 @@ const ExplorerPage = () => {
                 </>}
               </div>
               <div className="px-3 py-2.5 text-xs text-muted-foreground text-right">{formatFileSize(doc.size)}</div>
-            </div>
-            );
+            </div>);
+
       })}
         </div>
     }
@@ -455,7 +455,7 @@ const ExplorerPage = () => {
                   <span className="font-semibold text-foreground text-sm">{author?.name}</span>
                   <span className="text-[10px] text-muted-foreground">{new Date(comment.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
                 </div>
-                <p className="text-foreground/90 leading-relaxed text-base">{comment.text}</p>
+                <p className="text-foreground/90 leading-relaxed text-sm">{comment.text}</p>
                 <div className="flex items-center gap-3 mt-1.5">
                   <button className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-primary transition-colors">
                     <Reply className="w-3 h-3" />
@@ -524,11 +524,11 @@ const ExplorerPage = () => {
         <div className="flex items-center gap-2">
           {/* Archive project button when inside a project (admin only) */}
           {isAdmin && currentLevel.type === 'project' && currentProjectData?.status === 'active' &&
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-warning/50 text-warning hover:bg-warning/10"
-              onClick={() => setArchiveTarget(currentLevel.id)}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-warning/50 text-warning hover:bg-warning/10"
+            onClick={() => setArchiveTarget(currentLevel.id)}>
               <Archive className="w-4 h-4 mr-1.5" />
               Archivar Proyecto
             </Button>
@@ -558,11 +558,11 @@ const ExplorerPage = () => {
             </div>
           }
           {isAdmin && currentLevel.type === 'project' && isCurrentProjectArchived &&
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-success/50 text-success hover:bg-success/10"
-              onClick={() => setActivateTarget(currentLevel.id)}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-success/50 text-success hover:bg-success/10"
+            onClick={() => setActivateTarget(currentLevel.id)}>
               <BarChart3 className="w-4 h-4 mr-1.5" />
               Activar Proyecto
             </Button>
@@ -598,7 +598,7 @@ const ExplorerPage = () => {
             className="pl-10 bg-card border-border text-foreground placeholder:text-muted-foreground" />
         </div>
         {isAdmin && currentLevel.type === 'client' &&
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'active' | 'archived' | 'all')}>
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'active' | 'archived' | 'all')}>
             <SelectTrigger className="w-[180px] bg-card border-border">
               <SelectValue />
             </SelectTrigger>
@@ -716,7 +716,7 @@ const ExplorerPage = () => {
       </Dialog>
 
       {/* AlertDialog Archivar Proyecto */}
-      <AlertDialog open={!!archiveTarget} onOpenChange={(open) => { if (!open) { setArchiveTarget(null); setArchiveConfirmText(''); } }}>
+      <AlertDialog open={!!archiveTarget} onOpenChange={(open) => {if (!open) {setArchiveTarget(null);setArchiveConfirmText('');}}}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-heading flex items-center gap-2 text-foreground">
@@ -736,8 +736,8 @@ const ExplorerPage = () => {
               className={cn(
                 "bg-background border-border",
                 archiveConfirmText === 'ARCHIVAR' && "border-warning ring-1 ring-warning"
-              )}
-            />
+              )} />
+
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-primary text-primary hover:bg-primary/10 hover:text-primary">
@@ -763,7 +763,7 @@ const ExplorerPage = () => {
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="text-muted-foreground leading-relaxed space-y-3">
-                <p>Estás a punto de desarchivar el proyecto <strong className="text-foreground">{localProjects.find(p => p.id === activateTarget)?.name}</strong>.</p>
+                <p>Estás a punto de desarchivar el proyecto <strong className="text-foreground">{localProjects.find((p) => p.id === activateTarget)?.name}</strong>.</p>
                 <ul className="space-y-2 text-sm">
                   <li><strong className="text-foreground">Visibilidad:</strong> El proyecto volverá a aparecer en el Explorador de Clientes de forma inmediata.</li>
                   <li><strong className="text-foreground">Acceso:</strong> Todos los usuarios y clientes asignados recuperarán sus permisos de visualización y descarga.</li>
