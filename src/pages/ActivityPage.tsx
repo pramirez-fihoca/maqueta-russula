@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
 import { DOWNLOAD_RECORDS, DOCUMENTS, USERS, FOLDERS, PROJECTS, CLIENTS, COMMENTS } from '@/data/mockData';
-import { Download, FileDown, Search, Upload, Eye, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Download, FileDown, Search, Upload, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
-type ActionType = 'download' | 'upload' | 'view' | 'comment';
+type ActionType = 'download' | 'upload' | 'comment';
 
 interface ActivityRecord {
   id: string;
@@ -51,21 +51,6 @@ const ActivityPage = () => {
     // Uploads (from documents metadata)
     DOCUMENTS.forEach(d => {
       records.push({ id: `up-${d.id}`, userId: d.uploadedBy, documentId: d.id, action: 'upload', dateTime: `${d.uploadedAt}T09:00:00` });
-    });
-
-    // Views (simulated — some users viewed without downloading)
-    const viewData = [
-      { id: 'vw1', userId: 'u3', documentId: 'd1', dateTime: '2024-03-02T09:00:00' },
-      { id: 'vw2', userId: 'u7', documentId: 'd4', dateTime: '2024-02-22T09:30:00' },
-      { id: 'vw3', userId: 'u4', documentId: 'd8', dateTime: '2024-06-16T08:00:00' },
-      { id: 'vw4', userId: 'u5', documentId: 'd11', dateTime: '2024-08-11T14:00:00' },
-      { id: 'vw5', userId: 'u3', documentId: 'd6', dateTime: '2024-05-02T16:30:00' },
-      { id: 'vw6', userId: 'u8', documentId: 'd9', dateTime: '2024-08-01T10:00:00' },
-      { id: 'vw7', userId: 'u4', documentId: 'd10', dateTime: '2024-08-19T11:45:00' },
-      { id: 'vw8', userId: 'u5', documentId: 'd12', dateTime: '2024-10-01T12:00:00' },
-    ];
-    viewData.forEach(v => {
-      records.push({ id: `vw-${v.id}`, userId: v.userId, documentId: v.documentId, action: 'view', dateTime: v.dateTime });
     });
 
     // Comments
@@ -130,7 +115,6 @@ const ActivityPage = () => {
   const actionConfig: Record<ActionType, { label: string; icon: typeof Download; colorClass: string }> = {
     download: { label: 'Descarga', icon: Download, colorClass: 'bg-primary/10 text-primary' },
     upload: { label: 'Subida', icon: Upload, colorClass: 'bg-file-xls/10 text-file-xls' },
-    view: { label: 'Visualización', icon: Eye, colorClass: 'bg-blue-500/10 text-blue-400' },
     comment: { label: 'Comentario', icon: MessageSquare, colorClass: 'bg-amber-500/10 text-amber-400' },
   };
 
@@ -199,7 +183,6 @@ const ActivityPage = () => {
             <SelectItem value="all">Todas las acciones</SelectItem>
             <SelectItem value="download">Descarga</SelectItem>
             <SelectItem value="upload">Subida</SelectItem>
-            <SelectItem value="view">Visualización</SelectItem>
             <SelectItem value="comment">Comentario</SelectItem>
           </SelectContent>
         </Select>

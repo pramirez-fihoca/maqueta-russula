@@ -23,7 +23,6 @@ import {
   AlertTriangle,
   FileCheck,
   Download,
-  Eye,
   FileDown,
   Filter,
   CalendarDays,
@@ -395,13 +394,6 @@ const ActivityGuide = () => (
             desc: "Un administrador o editor ha publicado un nuevo documento en el explorador.",
             iconBg: "bg-green-500/10",
             iconColor: "text-green-500",
-          },
-          {
-            icon: Eye,
-            label: "Visualización",
-            desc: "El usuario abrió un documento para previsualizarlo sin descargarlo.",
-            iconBg: "bg-blue-500/10",
-            iconColor: "text-blue-400",
           },
           {
             icon: MessageSquare,
