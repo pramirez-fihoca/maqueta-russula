@@ -367,7 +367,7 @@ const ExplorerPage = () => {
         <button
           key={folder.id}
           onClick={() => openItem({ id: folder.id, name: folder.name, type: folder.type })}
-           className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
+           className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-start hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
 
               <div className="px-3 py-2.5 flex items-center gap-2 text-left min-w-0">
                 <Folder className="w-4 h-4 text-amber-500 shrink-0" />
@@ -385,7 +385,7 @@ const ExplorerPage = () => {
             return (
       <div
         key={doc.id}
-         className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-center hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
+         className="w-full grid grid-cols-[1fr_110px_100px_120px_70px] gap-0 items-start hover:bg-secondary/60 transition-colors group border-b border-border/50 last:border-b-0">
 
               <button
           onClick={() => navigate(`/dashboard/document/${doc.id}`)}
