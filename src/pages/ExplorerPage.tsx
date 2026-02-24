@@ -526,8 +526,7 @@ const ExplorerPage = () => {
           {isAdmin && currentLevel.type === 'project' && currentProjectData?.status === 'active' &&
           <Button
             size="sm"
-            variant="outline"
-            className="border-warning/50 text-warning hover:bg-warning/10"
+            className="russula-gradient text-primary-foreground hover:opacity-90"
             onClick={() => setArchiveTarget(currentLevel.id)}>
               <Archive className="w-4 h-4 mr-1.5" />
               Archivar Proyecto
@@ -560,8 +559,7 @@ const ExplorerPage = () => {
           {isAdmin && currentLevel.type === 'project' && isCurrentProjectArchived &&
           <Button
             size="sm"
-            variant="outline"
-            className="border-success/50 text-success hover:bg-success/10"
+            className="russula-gradient text-primary-foreground hover:opacity-90"
             onClick={() => setActivateTarget(currentLevel.id)}>
               <BarChart3 className="w-4 h-4 mr-1.5" />
               Activar Proyecto
