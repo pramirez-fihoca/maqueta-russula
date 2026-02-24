@@ -321,9 +321,8 @@ const ExplorerPage = () => {
           }
                 {folder.type === 'project' && folder.projectStatus === 'archived' &&
                   <Button
-                    variant="ghost"
                     size="sm"
-                    className="h-7 px-2 text-[11px] text-muted-foreground hover:text-primary gap-1"
+                    className="russula-gradient text-primary-foreground hover:opacity-90"
                     onClick={(e) => {
                       e.stopPropagation();
                       const projectDocs = DOCUMENTS.filter(d => {
